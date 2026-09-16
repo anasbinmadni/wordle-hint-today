@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getCachedWordle } from '../lib/cache';
 
 // 1. Extract Info from URL Slug
 const { slug } = Astro.params;
@@ -12,14 +13,15 @@ let answer = "NOT FOUND";
 let apiSuccess = false;
 
 try {
-    const response = await fetch(`https://www.nytimes.com/svc/wordle/v2/${apiDate}.json`);
-    if (response.ok) {
-        const data = await response.json();
+    const data = await getCachedWordle(apiDate, Astro);
+
+    if (data) {
         answer = data.solution;
         apiSuccess = true;
     }
+
 } catch (error) {
-    console.error("Archive API Error: ", error);
+    console.error("Archive Cache Error:", error);
 }
 
 const displayDate = new Date(apiDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });

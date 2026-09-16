@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import { getCachedWordle } from '../lib/cache';
 
+export const prerender = false;
 const dateObj = new Date();
 const year = dateObj.getFullYear();
 const month = String(dateObj.getMonth() + 1).padStart(2, '0');

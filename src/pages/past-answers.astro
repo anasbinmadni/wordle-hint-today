@@ -1,0 +1,235 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// 1. Difficulty Calculation Function (Same as single page)
+function calculateDifficulty(word: string) {
+    const vowelsArray = ['a', 'e', 'i', 'o', 'u'];
+    const rareLetters = ['q', 'z', 'j', 'x', 'v', 'k', 'w'];
+    const lowerWord = word.toLowerCase();
+    
+    const vowelCount = lowerWord.split('').filter(l => vowelsArray.includes(l)).length;
+    const hasRepeating = new Set(lowerWord.split('')).size !== lowerWord.length;
+    const rareCount = lowerWord.split('').filter(l => rareLetters.includes(l)).length;
+
+    let diffScore = 4; 
+    if (hasRepeating) diffScore += 2.5; 
+    diffScore += (rareCount * 2); 
+    if (vowelCount <= 1) diffScore += 1.5; 
+    if (vowelCount >= 3) diffScore -= 1.5; 
+    diffScore = Math.min(10, Math.max(1, Math.round(diffScore * 10) / 10));
+
+    if (diffScore >= 7) return { label: "Hard", color: "bg-red-100 text-red-700 border-red-200" };
+    if (diffScore <= 4) return { label: "Easy", color: "bg-green-100 text-green-700 border-green-200" };
+    return { label: "Medium", color: "bg-yellow-100 text-yellow-700 border-yellow-200" };
+}
+
+// 2. Generate Mock Archive Data for UI Testing (90 Days / 3 Months)
+// Note: Random words are used here to test the difficulty algorithm and filtering.
+const sampleWords = ["SLATE", "CRANE", "APPLE", "QUIZY", "JAZZY", "WATER", "LIGHT", "RHYTHM", "TRAIN", "SPOON"];
+const archiveData = [];
+const monthGroups = new Set();
+let stats = { total: 0, easy: 0, medium: 0, hard: 0 };
+let currentPuzzleNum = 1185; // Example current number
+
+for (let i = 0; i < 90; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    
+    const monthKey = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    monthGroups.add(monthKey);
+    
+    // Pick a random word to simulate varied difficulty
+    const randomWord = sampleWords[Math.floor(Math.random() * sampleWords.length)];
+    const diff = calculateDifficulty(randomWord);
+    
+    stats.total++;
+    if(diff.label === "Easy") stats.easy++;
+    else if(diff.label === "Medium") stats.medium++;
+    else if(diff.label === "Hard") stats.hard++;
+
+    archiveData.push({
+        date: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+        monthKey: monthKey,
+        puzzleNumber: currentPuzzleNum - i,
+        answer: randomWord,
+        difficulty: diff.label,
+        diffColor: diff.color,
+        link: `/wordle-hint-${currentPuzzleNum - i}-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+    });
+}
+const monthsArray = Array.from(monthGroups);
+---
+
+<Layout title="Past Wordle Answers & Difficulty Archive">
+    <main class="max-w-4xl mx-auto px-4 py-12 w-full">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-4 text-[#1a1a1b] tracking-tight">
+                Wordle Archive & Stats
+            </h1>
+            <p class="text-gray-600 font-medium max-w-2xl mx-auto">
+                Explore our complete database of past answers. Click on the difficulty cards below to filter the list, or browse by month!
+            </p>
+        </header>
+
+        <!-- SEO Interactive Stats Summary -->
+        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+            <button class="filter-btn active bg-[#1a1a1b] text-white p-4 rounded-xl shadow-sm border-2 border-[#1a1a1b] text-center hover:bg-gray-800 transition-colors" data-filter="All">
+                <div class="text-3xl font-black">{stats.total}</div>
+                <div class="text-sm font-bold uppercase tracking-wider opacity-80">Total</div>
+            </button>
+            <button class="filter-btn bg-white text-green-700 p-4 rounded-xl shadow-sm border-2 border-green-200 hover:bg-green-50 transition-colors" data-filter="Easy">
+                <div class="text-3xl font-black">{stats.easy}</div>
+                <div class="text-sm font-bold uppercase tracking-wider">Easy</div>
+            </button>
+            <button class="filter-btn bg-white text-yellow-700 p-4 rounded-xl shadow-sm border-2 border-yellow-200 hover:bg-yellow-50 transition-colors" data-filter="Medium">
+                <div class="text-3xl font-black">{stats.medium}</div>
+                <div class="text-sm font-bold uppercase tracking-wider">Medium</div>
+            </button>
+            <button class="filter-btn bg-white text-red-700 p-4 rounded-xl shadow-sm border-2 border-red-200 hover:bg-red-50 transition-colors" data-filter="Hard">
+                <div class="text-3xl font-black">{stats.hard}</div>
+                <div class="text-sm font-bold uppercase tracking-wider">Hard</div>
+            </button>
+        </section>
+
+        <!-- Month Tabs -->
+        <section class="flex overflow-x-auto hide-scrollbar gap-2 mb-6 pb-2">
+            {monthsArray.map((month, index) => (
+                <button class={`tab-btn whitespace-nowrap px-6 py-2 rounded-full font-bold text-sm transition-colors border-2 ${index === 0 ? 'bg-gray-200 border-gray-300 text-[#1a1a1b]' : 'bg-white border-[#d3d6da] text-gray-500 hover:bg-gray-50'}`} data-month={month}>
+                    {month}
+                </button>
+            ))}
+        </section>
+
+        <!-- Data Table / List -->
+        <section class="bg-white rounded-xl border-2 border-[#d3d6da] overflow-hidden">
+            <div class="bg-gray-50 border-b-2 border-[#d3d6da] p-4 text-xs uppercase tracking-wider font-bold text-gray-500 grid grid-cols-4 text-center md:text-left">
+                <div class="col-span-2 md:col-span-1 text-left">Puzzle / Date</div>
+                <div class="hidden md:block">Difficulty</div>
+                <div>Answer</div>
+                <div class="text-right">Action</div>
+            </div>
+            
+            <ul id="archive-list" class="divide-y divide-[#d3d6da]">
+                {archiveData.map((item) => (
+                    <li class="archive-item hover:bg-gray-50 transition-colors" data-month={item.monthKey} data-diff={item.difficulty}>
+                        <div class="p-4 grid grid-cols-4 items-center text-center md:text-left gap-2">
+                            <!-- Date & Number -->
+                            <div class="col-span-2 md:col-span-1 text-left">
+                                <div class="font-bold text-[#1a1a1b]">#{item.puzzleNumber}</div>
+                                <div class="text-xs text-gray-500 font-semibold">{item.date}</div>
+                            </div>
+                            <!-- Difficulty -->
+                            <div class="hidden md:flex items-center">
+                                <span class={`text-xs font-bold px-3 py-1 rounded-full border ${item.diffColor}`}>
+                                    {item.difficulty}
+                                </span>
+                            </div>
+                            <!-- Answer Revealed -->
+                            <div class="font-black tracking-widest text-[#6aaa64] text-xl uppercase">
+                                {item.answer}
+                            </div>
+                            <!-- Action Link -->
+                            <div class="text-right flex flex-col md:flex-row justify-end items-end md:items-center gap-2">
+                                <span class="md:hidden text-[10px] font-bold px-2 py-0.5 rounded-full border ${item.diffColor} mb-1">{item.difficulty}</span>
+                                <a href={item.link} class="text-xs font-bold text-white bg-[#1a1a1b] hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors inline-block">
+                                    View Stats
+                                </a>
+                            </div>
+                        </div>
+                    </li>
+                ))}
+            </ul>
+            
+            <!-- Empty State (If filter has no results) -->
+            <div id="empty-state" class="hidden p-10 text-center text-gray-500 font-bold">
+                No puzzles found for this combination.
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Client-Side JavaScript for Filtering & Tabs -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const archiveItems = document.querySelectorAll('.archive-item');
+            const emptyState = document.getElementById('empty-state');
+            
+            let currentFilter = 'All';
+            let currentMonth = tabBtns[0].getAttribute('data-month'); // Default to first month
+
+            function updateList() {
+                let visibleCount = 0;
+                
+                archiveItems.forEach(item => {
+                    const itemMonth = item.getAttribute('data-month');
+                    const itemDiff = item.getAttribute('data-diff');
+                    
+                    const matchMonth = itemMonth === currentMonth;
+                    const matchFilter = currentFilter === 'All' || itemDiff === currentFilter;
+                    
+                    if (matchMonth && matchFilter) {
+                        (item as HTMLElement).style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        (item as HTMLElement).style.display = 'none';
+                    }
+                });
+
+                if(emptyState) {
+                    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+                }
+            }
+
+            // Filter Click Handler
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Update Active Styles for Filters
+                    filterBtns.forEach(b => {
+                        b.classList.remove('bg-[#1a1a1b]', 'text-white');
+                        b.classList.add('bg-white');
+                    });
+                    const target = e.currentTarget as HTMLElement;
+                    target.classList.remove('bg-white');
+                    target.classList.add('bg-[#1a1a1b]', 'text-white');
+                    
+                    currentFilter = target.getAttribute('data-filter') || 'All';
+                    updateList();
+                });
+            });
+
+            // Tab Click Handler
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Update Active Styles for Tabs
+                    tabBtns.forEach(b => {
+                        b.classList.remove('bg-gray-200', 'border-gray-300', 'text-[#1a1a1b]');
+                        b.classList.add('bg-white', 'border-[#d3d6da]', 'text-gray-500');
+                    });
+                    const target = e.currentTarget as HTMLElement;
+                    target.classList.remove('bg-white', 'border-[#d3d6da]', 'text-gray-500');
+                    target.classList.add('bg-gray-200', 'border-gray-300', 'text-[#1a1a1b]');
+                    
+                    currentMonth = target.getAttribute('data-month') || '';
+                    updateList();
+                });
+            });
+
+            // Initial Run
+            updateList();
+        });
+    </script>
+
+    <style>
+        /* Hide scrollbar for tabs but allow scrolling */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</Layout>

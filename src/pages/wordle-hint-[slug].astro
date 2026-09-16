@@ -1,0 +1,173 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// 1. Extract Info from URL Slug
+const { slug } = Astro.params;
+const slugParts = slug ? slug.split('-') : [];
+const apiDate = slugParts.slice(-3).join('-'); 
+const puzzleNumber = slugParts[0]; 
+
+// 2. Fetch Data
+let answer = "NOT FOUND";
+let apiSuccess = false;
+
+try {
+    const response = await fetch(`https://www.nytimes.com/svc/wordle/v2/${apiDate}.json`);
+    if (response.ok) {
+        const data = await response.json();
+        answer = data.solution;
+        apiSuccess = true;
+    }
+} catch (error) {
+    console.error("Archive API Error: ", error);
+}
+
+const displayDate = new Date(apiDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+// 3. Auto-Generate Rich Content & Stats (SEO Engine)
+const word = answer.toLowerCase();
+const vowelsArray = ['a', 'e', 'i', 'o', 'u'];
+const rareLetters = ['q', 'z', 'j', 'x', 'v', 'k', 'w'];
+
+const vowelCount = word.split('').filter(letter => vowelsArray.includes(letter)).length;
+const consonantCount = 5 - vowelCount;
+const hasRepeating = new Set(word.split('')).size !== word.length;
+const rareCount = word.split('').filter(l => rareLetters.includes(l)).length;
+const startingLetter = word.charAt(0).toUpperCase();
+
+// Calculate Custom Difficulty Score (1 to 10)
+let diffScore = 4; // Base score
+if (hasRepeating) diffScore += 2.5; // Repeating letters make it harder
+diffScore += (rareCount * 2); // Rare letters add points
+if (vowelCount <= 1) diffScore += 1.5; // Few vowels make it harder
+if (vowelCount >= 3) diffScore -= 1.5; // Many vowels make it easier
+diffScore = Math.min(10, Math.max(1, Math.round(diffScore * 10) / 10)); // Cap between 1 and 10
+
+let diffLabel = "Medium";
+let diffColor = "text-yellow-600 bg-yellow-100";
+if (diffScore >= 7) {
+    diffLabel = "Hard";
+    diffColor = "text-red-600 bg-red-100";
+} else if (diffScore <= 4) {
+    diffLabel = "Easy";
+    diffColor = "text-green-600 bg-green-100";
+}
+
+// Calculate Scrabble Score for fun data
+const scrabbleValues: Record<string, number> = {a:1, b:3, c:3, d:2, e:1, f:4, g:2, h:4, i:1, j:8, k:5, l:1, m:3, n:1, o:1, p:3, q:10, r:1, s:1, t:1, u:1, v:4, w:4, x:8, y:4, z:10};
+const scrabbleScore = word.split('').reduce((acc, char) => acc + (scrabbleValues[char] || 0), 0);
+
+// 4. Dynamic FAQ Schema
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [{
+    "@type": "Question",
+    "name": `What was the Wordle answer for puzzle #${puzzleNumber} on ${displayDate}?`,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": `The Wordle answer for puzzle #${puzzleNumber} was ${answer.toUpperCase()}.`
+    }
+  }, {
+    "@type": "Question",
+    "name": `Was Wordle #${puzzleNumber} hard to solve?`,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": `Based on our analysis, the word ${answer.toUpperCase()} has a difficulty score of ${diffScore}/10 (${diffLabel}) because it contains ${vowelCount} vowels and ${hasRepeating ? 'has repeating letters' : 'no repeating letters'}.`
+    }
+  }]
+};
+---
+
+<Layout title={`Wordle #${puzzleNumber} Answer & History - ${displayDate}`}>
+    
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+    <main class="max-w-4xl mx-auto px-4 py-12 md:py-16">
+        
+        <!-- Breadcrumb Navigation -->
+        <nav class="text-sm font-medium text-slate-500 mb-8">
+            <a href="/" class="hover:text-green-600 transition-colors">Home</a> 
+            <span class="mx-2">/</span>
+            <a href="/archive" class="hover:text-green-600 transition-colors">Archive</a>
+            <span class="mx-2">/</span>
+            <span class="text-slate-800">Puzzle #{puzzleNumber}</span>
+        </nav>
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-slate-900 tracking-tight">
+                Wordle #{puzzleNumber} Answer
+            </h1>
+            <p class="text-lg text-slate-600 font-medium">Historical data and analysis for {displayDate}</p>
+        </header>
+        
+        {apiSuccess ? (
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                
+                <!-- Answer Reveal Card -->
+                <div class="bg-slate-900 rounded-3xl p-10 flex flex-col justify-center items-center text-center shadow-xl border border-slate-800">
+                    <p class="text-slate-400 mb-4 uppercase tracking-widest text-sm font-bold">The solution was</p>
+                    <div class="text-6xl md:text-7xl font-black text-green-400 tracking-[0.2em] uppercase drop-shadow-md">
+                        {answer}
+                    </div>
+                </div>
+
+                <!-- Word Analysis & Stats Card -->
+                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+                    <h2 class="text-2xl font-extrabold text-slate-900 mb-6 border-b border-slate-100 pb-4">Word Analysis</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
+                            <span class="font-bold text-slate-700">Difficulty Level</span>
+                            <span class={`px-3 py-1 rounded-lg font-black text-sm uppercase tracking-wide ${diffColor}`}>
+                                {diffLabel} ({diffScore}/10)
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
+                            <span class="font-bold text-slate-700">Vowels vs Consonants</span>
+                            <span class="font-semibold text-slate-600">{vowelCount} V / {consonantCount} C</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
+                            <span class="font-bold text-slate-700">Repeating Letters?</span>
+                            <span class="font-semibold text-slate-600">{hasRepeating ? "Yes" : "No"}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
+                            <span class="font-bold text-slate-700">Scrabble Score</span>
+                            <span class="font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-lg">{scrabbleScore} Points</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        ) : (
+            <div class="bg-red-50 text-red-600 p-8 rounded-2xl border border-red-200 text-center mb-16 max-w-2xl mx-auto">
+                <span class="text-3xl block mb-2">⚠️</span>
+                <strong class="text-lg">Sorry, we couldn't fetch the Wordle data for this date.</strong>
+                <p class="mt-2 text-sm text-red-500">The puzzle might not have existed yet, or the URL is incorrect.</p>
+            </div>
+        )}
+        
+        <!-- Auto-Generated FAQ Section for SEO -->
+        {apiSuccess && (
+            <section class="max-w-3xl mx-auto">
+                <h2 class="text-3xl font-extrabold text-slate-900 mb-8">Frequently Asked Questions</h2>
+                <div class="space-y-4">
+                    <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-6">
+                        <h3 class="font-bold text-lg text-slate-900">What was the Wordle answer for puzzle #{puzzleNumber}?</h3>
+                        <p class="text-slate-600 mt-2 font-medium">The official answer for Wordle #{puzzleNumber} (played on {displayDate}) was <strong>{answer.toUpperCase()}</strong>.</p>
+                    </div>
+                    <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-6">
+                        <h3 class="font-bold text-lg text-slate-900">Was Wordle #{puzzleNumber} hard to solve?</h3>
+                        <p class="text-slate-600 mt-2 font-medium">According to our algorithmic analysis, {answer.toUpperCase()} is considered a <strong>{diffLabel}</strong> word with a difficulty score of {diffScore}/10. This is because it starts with {startingLetter}, contains {vowelCount} vowels, and {hasRepeating ? 'features repeating letters' : 'has no repeating letters'}.</p>
+                    </div>
+                </div>
+            </section>
+        )}
+
+        <div class="mt-16 text-center">
+            <a href="/" class="inline-flex items-center gap-2 bg-slate-900 text-white font-bold py-3.5 px-8 rounded-full hover:bg-slate-800 transition-colors shadow-md">
+                ← Return to Today's Hint
+            </a>
+        </div>
+    </main>
+</Layout>

@@ -1,0 +1,8 @@
+name = "wordle-hint-today"
+compatibility_date = "2026-09-16"
+pages_build_output_dir = "dist"
+
+# Yeh KV Namespace hum caching ke liye use karenge
+[[kv_namespaces]]
+binding = "WORDLE_CACHE"
+id = "1074e27dcebd4b6cb2b72a47888d01ad" # Yeh ID Cloudflare Dashboard se milegi

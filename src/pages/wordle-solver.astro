@@ -1,0 +1,429 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SEO from "../components/SEO.astro";
+import SolverTool from "../components/SolverTool.astro";
+import FAQ from "../components/FAQ.astro";
+---
+
+
+<Layout
+
+title="Wordle Solver - Find Possible Words & Win Today's Puzzle"
+
+description="Use our free Wordle solver to find possible five-letter words. Enter known letters, remove incorrect letters, and solve Wordle puzzles faster."
+
+>
+
+
+<SEO
+
+title="Wordle Solver - Free Word Finder Tool"
+
+description="Solve Wordle puzzles with our free Wordle solver. Find possible five-letter words using letter patterns and excluded letters."
+
+/>
+
+
+
+<main class="page">
+
+
+<section class="hero">
+
+
+<h1>
+Wordle Solver
+</h1>
+
+
+<p>
+Need help finding a Wordle word? Use our free solver to discover possible answers while keeping the challenge fun.
+</p>
+
+
+</section>
+
+
+
+<SolverTool />
+
+
+
+
+<section class="card">
+
+
+<h2>
+How To Use The Wordle Solver
+</h2>
+
+
+<div class="steps">
+
+
+<div>
+
+<h3>
+1. Enter Known Letters
+</h3>
+
+<p>
+Add the letters you already know in their correct positions.
+</p>
+
+</div>
+
+
+
+<div>
+
+<h3>
+2. Remove Wrong Letters
+</h3>
+
+<p>
+Add letters that are not part of the answer.
+</p>
+
+</div>
+
+
+
+<div>
+
+<h3>
+3. Find Possible Words
+</h3>
+
+<p>
+The tool will show matching five-letter words.
+</p>
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+What Is A Wordle Solver?
+</h2>
+
+
+<p>
+A Wordle solver is a helpful tool that analyzes possible five-letter words based on your guesses. It helps players narrow down options without immediately revealing the daily answer.
+</p>
+
+
+<p>
+Our solver is designed for players who want assistance while still enjoying the puzzle-solving process.
+</p>
+
+
+</section>
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+Tips For Solving Wordle Without Spoilers
+</h2>
+
+
+<ul>
+
+<li>
+Start with words containing common vowels.</li>
+
+<li>
+Pay attention to repeated letters.</li>
+
+<li>
+Use eliminated letters carefully.</li>
+
+<li>
+Try different word patterns.</li>
+
+</ul>
+
+
+</section>
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+Wordle Hint vs Wordle Solver
+</h2>
+
+
+<p>
+A Wordle hint provides clues about today's answer, while a solver helps you find possible words based on your own guesses.
+</p>
+
+
+<p>
+Use hints when you want guidance. Use the solver when you need help narrowing down possibilities.
+</p>
+
+
+<div class="links">
+
+<a href="/today-wordle-hint">
+Today's Wordle Hints →
+</a>
+
+
+<a href="/today-wordle-answer">
+Today's Wordle Answer →
+</a>
+
+
+</div>
+
+
+</section>
+
+
+
+
+<FAQ />
+
+
+
+</main>
+
+
+
+
+<script type="application/ld+json">
+
+{
+"@context":"https://schema.org",
+"@type":"SoftwareApplication",
+"name":"Wordle Solver",
+"applicationCategory":"GameApplication",
+"operatingSystem":"Web",
+"description":"Free Wordle solver tool to find possible five-letter words."
+}
+
+</script>
+
+
+
+</Layout>
+
+
+
+
+<style>
+
+
+.page{
+
+max-width:900px;
+
+margin:auto;
+
+padding:3rem 1rem;
+
+}
+
+
+
+.hero{
+
+text-align:center;
+
+margin-bottom:2rem;
+
+}
+
+
+
+.hero h1{
+
+font-family:Georgia,serif;
+
+font-size:3.5rem;
+
+font-weight:900;
+
+}
+
+
+
+.hero p{
+
+font-size:1.2rem;
+
+color:#666;
+
+max-width:700px;
+
+margin:auto;
+
+}
+
+
+
+.card{
+
+background:white;
+
+border:1px solid #d3d6da;
+
+border-radius:24px;
+
+padding:2rem;
+
+margin:2rem 0;
+
+}
+
+
+
+.card h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+font-weight:900;
+
+margin-bottom:1rem;
+
+}
+
+
+
+.card p{
+
+line-height:1.8;
+
+color:#444;
+
+}
+
+
+
+.steps{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:1rem;
+
+}
+
+
+
+.steps div{
+
+background:#f7f7f7;
+
+border-radius:16px;
+
+padding:1.5rem;
+
+}
+
+
+
+.steps h3{
+
+font-weight:900;
+
+margin-bottom:.5rem;
+
+}
+
+
+
+li{
+
+margin-bottom:.8rem;
+
+}
+
+
+
+.links{
+
+display:flex;
+
+gap:1rem;
+
+margin-top:1.5rem;
+
+flex-wrap:wrap;
+
+}
+
+
+
+.links a{
+
+background:#1a1a1b;
+
+color:white;
+
+padding:.8rem 1.2rem;
+
+border-radius:10px;
+
+font-weight:800;
+
+}
+
+
+
+@media(max-width:700px){
+
+
+.hero h1{
+
+font-size:2.4rem;
+
+}
+
+
+
+.steps{
+
+grid-template-columns:1fr;
+
+}
+
+
+
+.card{
+
+padding:1.5rem;
+
+}
+
+
+
+}
+
+
+</style>

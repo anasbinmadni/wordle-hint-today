@@ -1,175 +1,1109 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { getCachedWordle } from '../lib/cache';
+import Layout from "../layouts/Layout.astro";
 
-// 1. Extract Info from URL Slug
+import AnswerReveal from "../components/AnswerReveal.astro";
+import FAQ from "../components/FAQ.astro";
+
+import { getCachedWordle } from "../lib/cache";
+
+
+export const prerender = false;
+
+
+
 const { slug } = Astro.params;
-const slugParts = slug ? slug.split('-') : [];
-const apiDate = slugParts.slice(-3).join('-'); 
-const puzzleNumber = slugParts[0]; 
 
-// 2. Fetch Data
-let answer = "NOT FOUND";
-let apiSuccess = false;
 
-try {
-    const data = await getCachedWordle(apiDate, Astro);
 
-    if (data) {
-        answer = data.solution;
-        apiSuccess = true;
-    }
+if(!slug){
 
-} catch (error) {
-    console.error("Archive Cache Error:", error);
+return Astro.redirect("/");
+
 }
 
-const displayDate = new Date(apiDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-// 3. Auto-Generate Rich Content & Stats (SEO Engine)
-const word = answer.toLowerCase();
-const vowelsArray = ['a', 'e', 'i', 'o', 'u'];
-const rareLetters = ['q', 'z', 'j', 'x', 'v', 'k', 'w'];
 
-const vowelCount = word.split('').filter(letter => vowelsArray.includes(letter)).length;
-const consonantCount = 5 - vowelCount;
-const hasRepeating = new Set(word.split('')).size !== word.length;
-const rareCount = word.split('').filter(l => rareLetters.includes(l)).length;
-const startingLetter = word.charAt(0).toUpperCase();
+const parts =
+slug.split("-");
 
-// Calculate Custom Difficulty Score (1 to 10)
-let diffScore = 4; // Base score
-if (hasRepeating) diffScore += 2.5; // Repeating letters make it harder
-diffScore += (rareCount * 2); // Rare letters add points
-if (vowelCount <= 1) diffScore += 1.5; // Few vowels make it harder
-if (vowelCount >= 3) diffScore -= 1.5; // Many vowels make it easier
-diffScore = Math.min(10, Math.max(1, Math.round(diffScore * 10) / 10)); // Cap between 1 and 10
 
-let diffLabel = "Medium";
-let diffColor = "text-yellow-600 bg-yellow-100";
-if (diffScore >= 7) {
-    diffLabel = "Hard";
-    diffColor = "text-red-600 bg-red-100";
-} else if (diffScore <= 4) {
-    diffLabel = "Easy";
-    diffColor = "text-green-600 bg-green-100";
+
+const puzzleNumber =
+parts[0];
+
+
+
+const year =
+parts.at(-3);
+
+
+
+const month =
+parts.at(-2);
+
+
+
+const day =
+parts.at(-1);
+
+
+
+const apiDate =
+`${year}-${month}-${day}`;
+
+
+
+
+let answer="";
+
+let puzzleId=0;
+
+let success=false;
+
+
+
+try{
+
+
+const data =
+await getCachedWordle(
+apiDate
+);
+
+
+
+if(data){
+
+answer=data.solution.toUpperCase();
+
+puzzleId=data.days_since_launch;
+
+success=true;
+
 }
 
-// Calculate Scrabble Score for fun data
-const scrabbleValues: Record<string, number> = {a:1, b:3, c:3, d:2, e:1, f:4, g:2, h:4, i:1, j:8, k:5, l:1, m:3, n:1, o:1, p:3, q:10, r:1, s:1, t:1, u:1, v:4, w:4, x:8, y:4, z:10};
-const scrabbleScore = word.split('').reduce((acc, char) => acc + (scrabbleValues[char] || 0), 0);
 
-// 4. Dynamic FAQ Schema
-const schema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [{
-    "@type": "Question",
-    "name": `What was the Wordle answer for puzzle #${puzzleNumber} on ${displayDate}?`,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": `The Wordle answer for puzzle #${puzzleNumber} was ${answer.toUpperCase()}.`
-    }
-  }, {
-    "@type": "Question",
-    "name": `Was Wordle #${puzzleNumber} hard to solve?`,
-    "acceptedAnswer": {
-      "@type": "Answer",
-      "text": `Based on our analysis, the word ${answer.toUpperCase()} has a difficulty score of ${diffScore}/10 (${diffLabel}) because it contains ${vowelCount} vowels and ${hasRepeating ? 'has repeating letters' : 'no repeating letters'}.`
-    }
-  }]
+}
+
+catch(error){
+
+console.error(
+"Wordle page error:",
+error
+);
+
+}
+
+
+
+
+if(!success){
+
+answer="NOTFOUND";
+
+}
+
+
+
+
+const displayDate =
+new Date(apiDate)
+.toLocaleDateString(
+"en-US",
+{
+weekday:"long",
+month:"long",
+day:"numeric",
+year:"numeric"
+}
+);
+
+
+
+
+
+const letters =
+answer.toLowerCase().split("");
+
+
+
+const vowels =
+letters.filter(
+letter =>
+["a","e","i","o","u"]
+.includes(letter)
+).length;
+
+
+
+const consonants =
+5-vowels;
+
+
+
+const startingLetter =
+answer.charAt(0);
+
+
+
+const endingLetter =
+answer.charAt(4);
+
+
+
+const hasRepeating =
+new Set(letters).size !== 5;
+
+
+
+const rareLetters =
+letters.filter(
+letter =>
+["q","z","j","x","v","k","w"]
+.includes(letter)
+).length;
+
+
+
+
+let difficultyScore=4;
+
+
+
+if(hasRepeating)
+difficultyScore+=2;
+
+
+
+difficultyScore += rareLetters;
+
+
+
+if(vowels<=1)
+difficultyScore+=1;
+
+
+
+if(vowels>=3)
+difficultyScore-=1;
+
+
+
+difficultyScore =
+Math.min(
+10,
+Math.max(
+1,
+difficultyScore
+)
+);
+
+
+
+let difficulty="Medium";
+
+let difficultyClass="medium";
+
+
+
+if(difficultyScore>=7){
+
+difficulty="Hard";
+
+difficultyClass="hard";
+
+}
+
+
+
+if(difficultyScore<=4){
+
+difficulty="Easy";
+
+difficultyClass="easy";
+
+}
+
+
+
+
+
+
+const hints=[
+
+`The answer starts with the letter ${startingLetter}.`,
+
+`The answer contains ${vowels} vowel${vowels>1?"s":""}.`,
+
+`The answer ends with the letter ${endingLetter}.`
+
+];
+
+
+
+
+
+const schema={
+
+
+"@context":
+"https://schema.org",
+
+
+"@type":
+"FAQPage",
+
+
+"mainEntity":[
+
+{
+
+"@type":"Question",
+
+"name":
+`What is the Wordle answer for puzzle #${puzzleNumber}?`,
+
+"acceptedAnswer":{
+
+"@type":"Answer",
+
+"text":
+`The Wordle answer for puzzle #${puzzleNumber} on ${displayDate} is ${answer}.`
+
+}
+
+},
+
+
+{
+
+"@type":"Question",
+
+"name":
+`Was Wordle #${puzzleNumber} difficult?`,
+
+"acceptedAnswer":{
+
+"@type":"Answer",
+
+"text":
+`Wordle #${puzzleNumber} has a ${difficulty} difficulty rating based on letter patterns, vowels and repeated letters.`
+
+}
+
+}
+
+]
+
 };
+
+
+
+const previousNumber =
+Number(puzzleNumber)-1;
+
+
+
+const nextNumber =
+Number(puzzleNumber)+1;
+
+
+
+const previousDate =
+new Date(apiDate);
+
+
+
+previousDate.setDate(
+previousDate.getDate()-1
+);
+
+
+
+const nextDate =
+new Date(apiDate);
+
+
+
+nextDate.setDate(
+nextDate.getDate()+1
+);
+
+
+
+function formatLinkDate(date:Date){
+
+return [
+
+date.getFullYear(),
+
+String(date.getMonth()+1).padStart(2,"0"),
+
+String(date.getDate()).padStart(2,"0")
+
+];
+
+}
+
+
+
+const prevDateParts =
+formatLinkDate(previousDate);
+
+
+
+const nextDateParts =
+formatLinkDate(nextDate);
+
+
+---
 ---
 
-<Layout title={`Wordle #${puzzleNumber} Answer & History - ${displayDate}`}>
-    
-    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+<Layout
 
-    <main class="max-w-4xl mx-auto px-4 py-12 md:py-16">
-        
-        <!-- Breadcrumb Navigation -->
-        <nav class="text-sm font-medium text-slate-500 mb-8">
-            <a href="/" class="hover:text-green-600 transition-colors">Home</a> 
-            <span class="mx-2">/</span>
-            <a href="/archive" class="hover:text-green-600 transition-colors">Archive</a>
-            <span class="mx-2">/</span>
-            <span class="text-slate-800">Puzzle #{puzzleNumber}</span>
-        </nav>
+title={`Wordle #${puzzleNumber} Answer ${displayDate} - Hints & Solution`}
 
-        <header class="text-center mb-12">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-4 text-slate-900 tracking-tight">
-                Wordle #{puzzleNumber} Answer
-            </h1>
-            <p class="text-lg text-slate-600 font-medium">Historical data and analysis for {displayDate}</p>
-        </header>
-        
-        {apiSuccess ? (
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                
-                <!-- Answer Reveal Card -->
-                <div class="bg-slate-900 rounded-3xl p-10 flex flex-col justify-center items-center text-center shadow-xl border border-slate-800">
-                    <p class="text-slate-400 mb-4 uppercase tracking-widest text-sm font-bold">The solution was</p>
-                    <div class="text-6xl md:text-7xl font-black text-green-400 tracking-[0.2em] uppercase drop-shadow-md">
-                        {answer}
-                    </div>
-                </div>
+description={`Find Wordle #${puzzleNumber} answer for ${displayDate}. Get spoiler-free hints, letter clues, difficulty analysis and final solution.`}
 
-                <!-- Word Analysis & Stats Card -->
-                <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
-                    <h2 class="text-2xl font-extrabold text-slate-900 mb-6 border-b border-slate-100 pb-4">Word Analysis</h2>
-                    
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
-                            <span class="font-bold text-slate-700">Difficulty Level</span>
-                            <span class={`px-3 py-1 rounded-lg font-black text-sm uppercase tracking-wide ${diffColor}`}>
-                                {diffLabel} ({diffScore}/10)
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
-                            <span class="font-bold text-slate-700">Vowels vs Consonants</span>
-                            <span class="font-semibold text-slate-600">{vowelCount} V / {consonantCount} C</span>
-                        </div>
-                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
-                            <span class="font-bold text-slate-700">Repeating Letters?</span>
-                            <span class="font-semibold text-slate-600">{hasRepeating ? "Yes" : "No"}</span>
-                        </div>
-                        <div class="flex justify-between items-center p-4 bg-slate-50 rounded-xl">
-                            <span class="font-bold text-slate-700">Scrabble Score</span>
-                            <span class="font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-lg">{scrabbleScore} Points</span>
-                        </div>
-                    </div>
-                </div>
+>
 
-            </div>
-        ) : (
-            <div class="bg-red-50 text-red-600 p-8 rounded-2xl border border-red-200 text-center mb-16 max-w-2xl mx-auto">
-                <span class="text-3xl block mb-2">⚠️</span>
-                <strong class="text-lg">Sorry, we couldn't fetch the Wordle data for this date.</strong>
-                <p class="mt-2 text-sm text-red-500">The puzzle might not have existed yet, or the URL is incorrect.</p>
-            </div>
-        )}
-        
-        <!-- Auto-Generated FAQ Section for SEO -->
-        {apiSuccess && (
-            <section class="max-w-3xl mx-auto">
-                <h2 class="text-3xl font-extrabold text-slate-900 mb-8">Frequently Asked Questions</h2>
-                <div class="space-y-4">
-                    <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-6">
-                        <h3 class="font-bold text-lg text-slate-900">What was the Wordle answer for puzzle #{puzzleNumber}?</h3>
-                        <p class="text-slate-600 mt-2 font-medium">The official answer for Wordle #{puzzleNumber} (played on {displayDate}) was <strong>{answer.toUpperCase()}</strong>.</p>
-                    </div>
-                    <div class="bg-white border border-slate-200 shadow-sm rounded-2xl p-6">
-                        <h3 class="font-bold text-lg text-slate-900">Was Wordle #{puzzleNumber} hard to solve?</h3>
-                        <p class="text-slate-600 mt-2 font-medium">According to our algorithmic analysis, {answer.toUpperCase()} is considered a <strong>{diffLabel}</strong> word with a difficulty score of {diffScore}/10. This is because it starts with {startingLetter}, contains {vowelCount} vowels, and {hasRepeating ? 'features repeating letters' : 'has no repeating letters'}.</p>
-                    </div>
-                </div>
-            </section>
-        )}
 
-        <div class="mt-16 text-center">
-            <a href="/" class="inline-flex items-center gap-2 bg-slate-900 text-white font-bold py-3.5 px-8 rounded-full hover:bg-slate-800 transition-colors shadow-md">
-                ← Return to Today's Hint
-            </a>
-        </div>
-    </main>
+<script
+type="application/ld+json"
+set:html={JSON.stringify(schema)}
+/>
+
+
+
+<main class="wordle-page">
+
+
+
+
+
+<nav class="breadcrumb">
+
+<a href="/">
+Home
+</a>
+
+<span>
+/
+</span>
+
+<a href="/past-answers">
+Past Answers
+</a>
+
+
+<span>
+/
+</span>
+
+
+<strong>
+Wordle #{puzzleNumber}
+</strong>
+
+
+</nav>
+
+
+
+
+
+
+
+
+<header class="hero">
+
+
+<h1>
+Wordle #{puzzleNumber} Answer
+</h1>
+
+
+<p>
+Puzzle date: {displayDate}
+</p>
+
+
+<div class="meta">
+
+<span>
+Puzzle #{puzzleNumber}
+</span>
+
+
+<span>
+{difficulty} Difficulty
+</span>
+
+</div>
+
+
+</header>
+
+
+
+
+
+
+
+<section class="hint-box">
+
+
+<h2>
+Need Help Solving Wordle #{puzzleNumber}?
+</h2>
+
+
+<p>
+
+Try these clues before revealing the answer.
+
+</p>
+
+
+
+
+<div class="hint-grid">
+
+
+{
+
+hints.map(
+(hint,index)=>(
+
+
+<div class="hint-card">
+
+
+<span>
+Hint {index+1}
+</span>
+
+
+<p>
+{hint}
+</p>
+
+
+</div>
+
+
+))
+
+}
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+
+
+<AnswerReveal
+
+answer={answer}
+
+puzzleNumber={Number(puzzleNumber)}
+
+/>
+
+
+
+
+
+
+
+<section class="analysis">
+
+
+<h2>
+Word Analysis
+</h2>
+
+
+
+<div class="analysis-grid">
+
+
+
+<div>
+
+<strong>
+Difficulty
+</strong>
+
+<span class={difficultyClass}>
+{difficulty}
+({difficultyScore}/10)
+</span>
+
+
+</div>
+
+
+
+<div>
+
+<strong>
+Vowels</strong>
+
+<span>
+{vowels}
+</span>
+
+
+</div>
+
+
+
+<div>
+
+<strong>
+Consonants
+</strong>
+
+<span>
+{consonants}
+</span>
+
+
+</div>
+
+
+
+<div>
+
+<strong>
+Starting Letter
+</strong>
+
+<span>
+{startingLetter}
+</span>
+
+
+</div>
+
+
+
+<div>
+
+<strong>
+Ending Letter
+</strong>
+
+<span>
+{endingLetter}
+</span>
+
+
+</div>
+
+
+
+<div>
+
+<strong>
+Repeating Letters
+</strong>
+
+<span>
+{
+hasRepeating
+?
+"Yes"
+:
+"No"
+}
+</span>
+
+
+</div>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section class="seo-content">
+
+
+<h2>
+About Wordle #{puzzleNumber}
+</h2>
+
+
+<p>
+
+Wordle #{puzzleNumber} was released on {displayDate}.
+This page provides helpful clues before revealing the final answer.
+
+Players can use progressive hints to solve the puzzle independently,
+then check the solution when needed.
+
+</p>
+
+
+
+
+<h2>
+How To Improve Your Wordle Skills
+</h2>
+
+
+<ul>
+
+<li>
+Start with words containing common vowels.
+</li>
+
+
+<li>
+Track confirmed letters carefully.
+</li>
+
+
+<li>
+Avoid repeating eliminated guesses.
+</li>
+
+
+<li>
+Review previous Wordle answers to identify patterns.
+</li>
+
+
+</ul>
+
+
+</section>
+
+
+
+
+
+
+
+
+<section class="navigation">
+
+
+<a href={`/wordle-hint-${previousNumber}-${prevDateParts.join("-")}`}>
+
+← Previous Wordle
+
+</a>
+
+
+
+<a href="/">
+
+Today's Hint
+
+</a>
+
+
+
+
+<a href={`/wordle-hint-${nextNumber}-${nextDateParts.join("-")}`}>
+
+Next Wordle →
+
+</a>
+
+
+</section>
+
+
+
+
+
+
+
+<FAQ />
+
+
+
+
+</main>
+
 </Layout>
+
+
+
+
+
+
+
+<style>
+
+
+
+.wordle-page{
+
+max-width:900px;
+
+margin:auto;
+
+padding:2rem 1rem;
+
+}
+
+
+
+.breadcrumb{
+
+display:flex;
+
+gap:.5rem;
+
+font-size:.9rem;
+
+color:#666;
+
+margin-bottom:2rem;
+
+}
+
+
+
+.breadcrumb a:hover{
+
+text-decoration:underline;
+
+}
+
+
+
+
+
+.hero{
+
+text-align:center;
+
+margin-bottom:3rem;
+
+}
+
+
+
+.hero h1{
+
+font-family:Georgia,serif;
+
+font-size:clamp(2rem,5vw,3rem);
+
+font-weight:900;
+
+}
+
+
+
+.hero p{
+
+color:#666;
+
+}
+
+
+
+.meta{
+
+display:flex;
+
+justify-content:center;
+
+gap:1rem;
+
+margin-top:1rem;
+
+}
+
+
+
+.meta span{
+
+background:#f3f3f3;
+
+padding:.5rem 1rem;
+
+border-radius:20px;
+
+font-weight:700;
+
+}
+
+
+
+
+
+
+
+.hint-box{
+
+background:#fafafa;
+
+border:1px solid #ddd;
+
+border-radius:24px;
+
+padding:2rem;
+
+margin-bottom:3rem;
+
+}
+
+
+
+.hint-box h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+}
+
+
+
+
+.hint-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:1rem;
+
+margin-top:2rem;
+
+}
+
+
+
+.hint-card{
+
+background:white;
+
+padding:1.2rem;
+
+border-radius:16px;
+
+border:1px solid #ddd;
+
+}
+
+
+
+.hint-card span{
+
+font-weight:900;
+
+color:#6aaa64;
+
+}
+
+
+
+.hint-card p{
+
+margin-top:.5rem;
+
+}
+
+
+
+
+
+
+.analysis{
+
+margin:4rem 0;
+
+}
+
+
+
+.analysis h2,
+.seo-content h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+font-weight:900;
+
+margin-bottom:1.5rem;
+
+}
+
+
+
+
+.analysis-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:1rem;
+
+}
+
+
+
+.analysis-grid div{
+
+padding:1.3rem;
+
+border:1px solid #ddd;
+
+border-radius:16px;
+
+background:white;
+
+display:flex;
+
+flex-direction:column;
+
+gap:.5rem;
+
+}
+
+
+
+.analysis-grid span{
+
+font-weight:800;
+
+}
+
+
+
+.easy{
+
+color:#6aaa64;
+
+}
+
+
+
+.medium{
+
+color:#c9b458;
+
+}
+
+
+
+.hard{
+
+color:#d9534f;
+
+}
+
+
+
+
+
+
+.seo-content{
+
+line-height:1.8;
+
+margin:4rem 0;
+
+}
+
+
+
+.seo-content li{
+
+margin:.5rem 0;
+
+}
+
+
+
+
+
+
+
+.navigation{
+
+display:flex;
+
+justify-content:space-between;
+
+gap:1rem;
+
+margin:4rem 0;
+
+}
+
+
+
+.navigation a{
+
+background:#1a1a1b;
+
+color:white;
+
+padding:.8rem 1.2rem;
+
+border-radius:12px;
+
+font-weight:800;
+
+text-align:center;
+
+}
+
+
+
+
+
+@media(max-width:700px){
+
+
+.hint-grid,
+.analysis-grid{
+
+grid-template-columns:1fr;
+
+}
+
+
+
+.navigation{
+
+flex-direction:column;
+
+}
+
+
+
+}
+
+
+
+</style>

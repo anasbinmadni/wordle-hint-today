@@ -1,235 +1,1102 @@
 ---
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import FAQ from "../components/FAQ.astro";
 
-// 1. Difficulty Calculation Function (Same as single page)
-function calculateDifficulty(word: string) {
-    const vowelsArray = ['a', 'e', 'i', 'o', 'u'];
-    const rareLetters = ['q', 'z', 'j', 'x', 'v', 'k', 'w'];
-    const lowerWord = word.toLowerCase();
-    
-    const vowelCount = lowerWord.split('').filter(l => vowelsArray.includes(l)).length;
-    const hasRepeating = new Set(lowerWord.split('')).size !== lowerWord.length;
-    const rareCount = lowerWord.split('').filter(l => rareLetters.includes(l)).length;
+import { getCachedWordle } from "../lib/cache";
 
-    let diffScore = 4; 
-    if (hasRepeating) diffScore += 2.5; 
-    diffScore += (rareCount * 2); 
-    if (vowelCount <= 1) diffScore += 1.5; 
-    if (vowelCount >= 3) diffScore -= 1.5; 
-    diffScore = Math.min(10, Math.max(1, Math.round(diffScore * 10) / 10));
 
-    if (diffScore >= 7) return { label: "Hard", color: "bg-red-100 text-red-700 border-red-200" };
-    if (diffScore <= 4) return { label: "Easy", color: "bg-green-100 text-green-700 border-green-200" };
-    return { label: "Medium", color: "bg-yellow-100 text-yellow-700 border-yellow-200" };
+
+export const prerender = false;
+
+
+
+interface ArchiveItem {
+
+date:string;
+
+month:string;
+
+year:number;
+
+puzzleNumber:number;
+
+answer:string;
+
+vowels:number;
+
+consonants:number;
+
+startingLetter:string;
+
+endingLetter:string;
+
+repeat:boolean;
+
+difficulty:string;
+
+difficultyClass:string;
+
+link:string;
+
 }
 
-// 2. Generate Mock Archive Data for UI Testing (90 Days / 3 Months)
-// Note: Random words are used here to test the difficulty algorithm and filtering.
-const sampleWords = ["SLATE", "CRANE", "APPLE", "QUIZY", "JAZZY", "WATER", "LIGHT", "RHYTHM", "TRAIN", "SPOON"];
-const archiveData = [];
-const monthGroups = new Set();
-let stats = { total: 0, easy: 0, medium: 0, hard: 0 };
-let currentPuzzleNum = 1185; // Example current number
 
-for (let i = 0; i < 90; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    
-    const monthKey = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    monthGroups.add(monthKey);
-    
-    // Pick a random word to simulate varied difficulty
-    const randomWord = sampleWords[Math.floor(Math.random() * sampleWords.length)];
-    const diff = calculateDifficulty(randomWord);
-    
-    stats.total++;
-    if(diff.label === "Easy") stats.easy++;
-    else if(diff.label === "Medium") stats.medium++;
-    else if(diff.label === "Hard") stats.hard++;
 
-    archiveData.push({
-        date: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-        monthKey: monthKey,
-        puzzleNumber: currentPuzzleNum - i,
-        answer: randomWord,
-        difficulty: diff.label,
-        diffColor: diff.color,
-        link: `/wordle-hint-${currentPuzzleNum - i}-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-    });
+function calculateDifficulty(word:string){
+
+
+const letters =
+word.toLowerCase().split("");
+
+
+
+const vowels =
+letters.filter(
+l=>["a","e","i","o","u"].includes(l)
+).length;
+
+
+
+const rare =
+letters.filter(
+l=>["q","z","j","x","v","k","w"].includes(l)
+).length;
+
+
+
+const repeat =
+new Set(letters).size !== letters.length;
+
+
+
+let score = 4;
+
+
+
+if(repeat)
+score +=2;
+
+
+
+score += rare;
+
+
+
+if(vowels<=1)
+score +=1;
+
+
+
+if(vowels>=3)
+score -=1;
+
+
+
+score =
+Math.min(
+10,
+Math.max(
+1,
+score
+)
+);
+
+
+
+if(score>=7){
+
+return {
+
+label:"Hard",
+
+class:
+"hard"
+
+};
+
 }
-const monthsArray = Array.from(monthGroups);
----
 
-<Layout title="Past Wordle Answers & Difficulty Archive">
-    <main class="max-w-4xl mx-auto px-4 py-12 w-full">
-        
-        <header class="text-center mb-10">
-            <h1 class="text-3xl md:text-5xl font-extrabold mb-4 text-[#1a1a1b] tracking-tight">
-                Wordle Archive & Stats
-            </h1>
-            <p class="text-gray-600 font-medium max-w-2xl mx-auto">
-                Explore our complete database of past answers. Click on the difficulty cards below to filter the list, or browse by month!
-            </p>
-        </header>
 
-        <!-- SEO Interactive Stats Summary -->
-        <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-            <button class="filter-btn active bg-[#1a1a1b] text-white p-4 rounded-xl shadow-sm border-2 border-[#1a1a1b] text-center hover:bg-gray-800 transition-colors" data-filter="All">
-                <div class="text-3xl font-black">{stats.total}</div>
-                <div class="text-sm font-bold uppercase tracking-wider opacity-80">Total</div>
-            </button>
-            <button class="filter-btn bg-white text-green-700 p-4 rounded-xl shadow-sm border-2 border-green-200 hover:bg-green-50 transition-colors" data-filter="Easy">
-                <div class="text-3xl font-black">{stats.easy}</div>
-                <div class="text-sm font-bold uppercase tracking-wider">Easy</div>
-            </button>
-            <button class="filter-btn bg-white text-yellow-700 p-4 rounded-xl shadow-sm border-2 border-yellow-200 hover:bg-yellow-50 transition-colors" data-filter="Medium">
-                <div class="text-3xl font-black">{stats.medium}</div>
-                <div class="text-sm font-bold uppercase tracking-wider">Medium</div>
-            </button>
-            <button class="filter-btn bg-white text-red-700 p-4 rounded-xl shadow-sm border-2 border-red-200 hover:bg-red-50 transition-colors" data-filter="Hard">
-                <div class="text-3xl font-black">{stats.hard}</div>
-                <div class="text-sm font-bold uppercase tracking-wider">Hard</div>
-            </button>
-        </section>
 
-        <!-- Month Tabs -->
-        <section class="flex overflow-x-auto hide-scrollbar gap-2 mb-6 pb-2">
-            {monthsArray.map((month, index) => (
-                <button class={`tab-btn whitespace-nowrap px-6 py-2 rounded-full font-bold text-sm transition-colors border-2 ${index === 0 ? 'bg-gray-200 border-gray-300 text-[#1a1a1b]' : 'bg-white border-[#d3d6da] text-gray-500 hover:bg-gray-50'}`} data-month={month}>
-                    {month}
-                </button>
-            ))}
-        </section>
+if(score<=4){
 
-        <!-- Data Table / List -->
-        <section class="bg-white rounded-xl border-2 border-[#d3d6da] overflow-hidden">
-            <div class="bg-gray-50 border-b-2 border-[#d3d6da] p-4 text-xs uppercase tracking-wider font-bold text-gray-500 grid grid-cols-4 text-center md:text-left">
-                <div class="col-span-2 md:col-span-1 text-left">Puzzle / Date</div>
-                <div class="hidden md:block">Difficulty</div>
-                <div>Answer</div>
-                <div class="text-right">Action</div>
-            </div>
-            
-            <ul id="archive-list" class="divide-y divide-[#d3d6da]">
-                {archiveData.map((item) => (
-                    <li class="archive-item hover:bg-gray-50 transition-colors" data-month={item.monthKey} data-diff={item.difficulty}>
-                        <div class="p-4 grid grid-cols-4 items-center text-center md:text-left gap-2">
-                            <!-- Date & Number -->
-                            <div class="col-span-2 md:col-span-1 text-left">
-                                <div class="font-bold text-[#1a1a1b]">#{item.puzzleNumber}</div>
-                                <div class="text-xs text-gray-500 font-semibold">{item.date}</div>
-                            </div>
-                            <!-- Difficulty -->
-                            <div class="hidden md:flex items-center">
-                                <span class={`text-xs font-bold px-3 py-1 rounded-full border ${item.diffColor}`}>
-                                    {item.difficulty}
-                                </span>
-                            </div>
-                            <!-- Answer Revealed -->
-                            <div class="font-black tracking-widest text-[#6aaa64] text-xl uppercase">
-                                {item.answer}
-                            </div>
-                            <!-- Action Link -->
-                            <div class="text-right flex flex-col md:flex-row justify-end items-end md:items-center gap-2">
-                                <span class="md:hidden text-[10px] font-bold px-2 py-0.5 rounded-full border ${item.diffColor} mb-1">{item.difficulty}</span>
-                                <a href={item.link} class="text-xs font-bold text-white bg-[#1a1a1b] hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors inline-block">
-                                    View Stats
-                                </a>
-                            </div>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-            
-            <!-- Empty State (If filter has no results) -->
-            <div id="empty-state" class="hidden p-10 text-center text-gray-500 font-bold">
-                No puzzles found for this combination.
-            </div>
-        </section>
+return {
 
-    </main>
+label:"Easy",
 
-    <!-- Client-Side JavaScript for Filtering & Tabs -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const tabBtns = document.querySelectorAll('.tab-btn');
-            const archiveItems = document.querySelectorAll('.archive-item');
-            const emptyState = document.getElementById('empty-state');
-            
-            let currentFilter = 'All';
-            let currentMonth = tabBtns[0].getAttribute('data-month'); // Default to first month
+class:
+"easy"
 
-            function updateList() {
-                let visibleCount = 0;
-                
-                archiveItems.forEach(item => {
-                    const itemMonth = item.getAttribute('data-month');
-                    const itemDiff = item.getAttribute('data-diff');
-                    
-                    const matchMonth = itemMonth === currentMonth;
-                    const matchFilter = currentFilter === 'All' || itemDiff === currentFilter;
-                    
-                    if (matchMonth && matchFilter) {
-                        (item as HTMLElement).style.display = 'block';
-                        visibleCount++;
-                    } else {
-                        (item as HTMLElement).style.display = 'none';
-                    }
-                });
+};
 
-                if(emptyState) {
-                    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
-                }
-            }
+}
 
-            // Filter Click Handler
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    // Update Active Styles for Filters
-                    filterBtns.forEach(b => {
-                        b.classList.remove('bg-[#1a1a1b]', 'text-white');
-                        b.classList.add('bg-white');
-                    });
-                    const target = e.currentTarget as HTMLElement;
-                    target.classList.remove('bg-white');
-                    target.classList.add('bg-[#1a1a1b]', 'text-white');
-                    
-                    currentFilter = target.getAttribute('data-filter') || 'All';
-                    updateList();
-                });
-            });
 
-            // Tab Click Handler
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    // Update Active Styles for Tabs
-                    tabBtns.forEach(b => {
-                        b.classList.remove('bg-gray-200', 'border-gray-300', 'text-[#1a1a1b]');
-                        b.classList.add('bg-white', 'border-[#d3d6da]', 'text-gray-500');
-                    });
-                    const target = e.currentTarget as HTMLElement;
-                    target.classList.remove('bg-white', 'border-[#d3d6da]', 'text-gray-500');
-                    target.classList.add('bg-gray-200', 'border-gray-300', 'text-[#1a1a1b]');
-                    
-                    currentMonth = target.getAttribute('data-month') || '';
-                    updateList();
-                });
-            });
 
-            // Initial Run
-            updateList();
-        });
-    </script>
+return {
 
-    <style>
-        /* Hide scrollbar for tabs but allow scrolling */
-        .hide-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .hide-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
+label:"Medium",
+
+class:
+"medium"
+
+};
+
+}
+
+
+
+
+
+const today = new Date();
+
+
+const archive:ArchiveItem[]=[];
+
+
+
+let stats={
+
+total:0,
+
+easy:0,
+
+medium:0,
+
+hard:0
+
+};
+
+
+
+for(let i=0;i<365;i++){
+
+
+
+const date =
+new Date(today);
+
+
+date.setDate(
+today.getDate()-i
+);
+
+
+
+const yyyy =
+date.getFullYear();
+
+
+
+const mm =
+String(date.getMonth()+1)
+.padStart(2,"0");
+
+
+
+const dd =
+String(date.getDate())
+.padStart(2,"0");
+
+
+
+const apiDate =
+`${yyyy}-${mm}-${dd}`;
+
+
+
+try{
+
+
+const data =
+await getCachedWordle(
+apiDate
+);
+
+
+
+if(!data)
+continue;
+
+
+
+const answer =
+data.solution.toUpperCase();
+
+
+
+const letters =
+answer.toLowerCase().split("");
+
+
+
+const vowelCount =
+letters.filter(
+l=>["a","e","i","o","u"].includes(l)
+).length;
+
+
+
+const difficulty =
+calculateDifficulty(answer);
+
+
+
+stats.total++;
+
+
+if(difficulty.label==="Easy")
+stats.easy++;
+
+
+if(difficulty.label==="Medium")
+stats.medium++;
+
+
+if(difficulty.label==="Hard")
+stats.hard++;
+
+
+
+
+archive.push({
+
+
+date:
+date.toLocaleDateString(
+"en-US",
+{
+weekday:"short",
+month:"short",
+day:"numeric"
+}
+),
+
+
+month:
+date.toLocaleDateString(
+"en-US",
+{
+month:"long",
+year:"numeric"
+}
+),
+
+
+year:yyyy,
+
+
+puzzleNumber:
+data.days_since_launch,
+
+
+answer,
+
+
+vowels:vowelCount,
+
+
+consonants:
+5-vowelCount,
+
+
+startingLetter:
+answer.charAt(0),
+
+
+endingLetter:
+answer.charAt(4),
+
+
+repeat:
+new Set(letters).size !== letters.length,
+
+
+difficulty:
+difficulty.label,
+
+
+difficultyClass:
+difficulty.class,
+
+
+link:
+`/wordle-hint-${data.days_since_launch}-${yyyy}-${mm}-${dd}`
+
+
+});
+
+
+
+}
+
+
+catch(error){
+
+console.error(
+"Archive fetch error",
+apiDate,
+error
+);
+
+
+}
+
+
+
+}
+
+
+
+const groupedMonths =
+Object.groupBy(
+archive,
+(item)=>item.month
+);
+
+
+
+const schema={
+
+
+"@context":
+"https://schema.org",
+
+
+"@type":
+"CollectionPage",
+
+
+"name":
+"Wordle Past Answers Archive",
+
+
+"description":
+"Browse previous Wordle answers with dates, puzzle numbers, difficulty and word analysis.",
+
+
+"url":
+"https://wordlehinttoday.online/past-answers"
+
+
+};
+
+------
+
+<Layout
+
+title="Wordle Past Answers Archive - Previous Wordle Solutions by Date"
+
+description="Browse 365 previous Wordle answers with puzzle numbers, dates, difficulty levels, vowels, letters analysis and historical puzzle details."
+
+>
+
+
+<script
+type="application/ld+json"
+set:html={JSON.stringify(schema)}
+/>
+
+
+
+<main class="archive-container">
+
+
+
+<section class="hero">
+
+
+<h1>
+Wordle Past Answers Archive
+</h1>
+
+
+<p>
+Explore the last 365 Wordle answers with puzzle numbers, dates, difficulty ratings, and detailed word analysis.
+Find previous solutions organized month by month.
+</p>
+
+
+
+<div class="stats">
+
+
+<div>
+
+<strong>
+{stats.total}
+</strong>
+
+<span>
+Puzzles
+</span>
+
+</div>
+
+
+
+<div>
+
+<strong class="easy-text">
+{stats.easy}
+</strong>
+
+<span>
+Easy
+</span>
+
+</div>
+
+
+
+<div>
+
+<strong class="medium-text">
+{stats.medium}
+</strong>
+
+<span>
+Medium
+</span>
+
+</div>
+
+
+
+<div>
+
+<strong class="hard-text">
+{stats.hard}
+</strong>
+
+<span>
+Hard
+</span>
+
+</div>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+<section class="intro">
+
+
+<h2>
+About This Wordle Answer Archive
+</h2>
+
+
+<p>
+
+This Wordle archive helps players find previous answers quickly.
+Each puzzle includes the official solution, puzzle number, date,
+difficulty estimate, and letter breakdown.
+
+Use this page to review past puzzles, improve your strategy,
+and explore Wordle patterns over time.
+
+</p>
+
+
+</section>
+
+
+
+
+
+
+
+<section class="months">
+
+
+{
+
+Object.entries(groupedMonths)
+.map(([month,items])=>(
+
+
+<div class="month-block">
+
+
+<h2>
+{month} Wordle Answers
+</h2>
+
+
+
+<div class="cards">
+
+
+{
+
+items.map(item=>(
+
+
+<article class="card">
+
+
+
+<div class="top">
+
+
+<span class="number">
+
+#{item.puzzleNumber}
+
+</span>
+
+
+
+<span class={`difficulty ${item.difficultyClass}`}>
+
+{item.difficulty}
+
+</span>
+
+
+</div>
+
+
+
+
+<h3>
+
+{item.answer}
+
+</h3>
+
+
+
+
+<div class="details">
+
+
+<p>
+
+📅 {item.date}
+
+</p>
+
+
+<p>
+
+🔤 {item.vowels} vowels • {item.consonants} consonants
+
+</p>
+
+
+
+<p>
+
+▶ Starts {item.startingLetter}
+
+•
+Ends {item.endingLetter}
+
+</p>
+
+
+
+<p>
+
+{
+
+item.repeat
+
+?
+
+"🔁 Repeating letters"
+
+:
+
+"✓ Unique letters"
+
+}
+
+</p>
+
+
+
+</div>
+
+
+
+
+<a href={item.link}>
+
+View Full Analysis →
+
+</a>
+
+
+
+
+</article>
+
+
+
+))
+
+}
+
+
+</div>
+
+
+
+</div>
+
+
+))
+
+}
+
+
+
+</section>
+
+
+
+
+
+
+<section class="archive-help">
+
+
+<h2>
+How To Use The Wordle Archive
+</h2>
+
+
+
+<div class="help-grid">
+
+
+<div>
+
+<h3>
+Check Previous Answers
+</h3>
+
+<p>
+Find any recent Wordle solution by date or puzzle number.
+</p>
+
+</div>
+
+
+
+<div>
+
+<h3>
+Study Word Patterns
+</h3>
+
+<p>
+Analyze common letters, vowels and repeated patterns.
+</p>
+
+</div>
+
+
+
+
+<div>
+
+<h3>
+Improve Future Guesses
+</h3>
+
+<p>
+Learn from previous solutions and build stronger starting strategies.
+</p>
+
+</div>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+
+
+<FAQ />
+
+
+
+</main>
+
+
+
 </Layout>
+
+
+
+
+
+<style>
+
+
+
+.archive-container{
+
+max-width:1100px;
+
+margin:auto;
+
+padding:2rem 1rem;
+
+}
+
+
+
+.hero{
+
+text-align:center;
+
+padding:3rem 0;
+
+}
+
+
+
+.hero h1{
+
+font-family:Georgia,serif;
+
+font-size:clamp(2rem,5vw,3.2rem);
+
+font-weight:900;
+
+}
+
+
+
+.hero p{
+
+max-width:700px;
+
+margin:1rem auto;
+
+color:#666;
+
+line-height:1.7;
+
+}
+
+
+
+
+.stats{
+
+display:grid;
+
+grid-template-columns:repeat(4,1fr);
+
+gap:1rem;
+
+margin-top:2rem;
+
+}
+
+
+
+.stats div{
+
+border:1px solid #ddd;
+
+padding:1.5rem;
+
+border-radius:18px;
+
+background:white;
+
+}
+
+
+
+.stats strong{
+
+display:block;
+
+font-size:2rem;
+
+}
+
+
+
+.stats span{
+
+color:#666;
+
+}
+
+
+
+.easy-text{
+
+color:#6aaa64;
+
+}
+
+
+.medium-text{
+
+color:#c9b458;
+
+}
+
+
+.hard-text{
+
+color:#d9534f;
+
+}
+
+
+
+
+
+.intro{
+
+margin:3rem 0;
+
+line-height:1.8;
+
+}
+
+
+
+.intro h2,
+.month-block h2,
+.archive-help h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+font-weight:900;
+
+margin-bottom:1rem;
+
+}
+
+
+
+
+
+.month-block{
+
+margin:4rem 0;
+
+}
+
+
+
+
+.cards{
+
+display:grid;
+
+grid-template-columns:
+repeat(3,1fr);
+
+gap:1rem;
+
+}
+
+
+
+.card{
+
+border:1px solid #ddd;
+
+border-radius:18px;
+
+padding:1.4rem;
+
+background:white;
+
+transition:.25s;
+
+}
+
+
+
+.card:hover{
+
+transform:translateY(-5px);
+
+box-shadow:
+0 15px 35px rgba(0,0,0,.08);
+
+}
+
+
+
+.top{
+
+display:flex;
+
+justify-content:space-between;
+
+}
+
+
+
+.number{
+
+font-weight:900;
+
+}
+
+
+
+.difficulty{
+
+padding:.3rem .7rem;
+
+border-radius:20px;
+
+font-size:.8rem;
+
+font-weight:800;
+
+}
+
+
+
+.easy{
+
+background:#e8f5e9;
+
+color:#388e3c;
+
+}
+
+
+
+.medium{
+
+background:#fff8e1;
+
+color:#b28704;
+
+}
+
+
+
+.hard{
+
+background:#ffebee;
+
+color:#c62828;
+
+}
+
+
+
+
+.card h3{
+
+font-size:2rem;
+
+letter-spacing:.2rem;
+
+margin:1rem 0;
+
+}
+
+
+
+.details{
+
+font-size:.9rem;
+
+color:#666;
+
+line-height:1.7;
+
+}
+
+
+
+.card a{
+
+display:block;
+
+margin-top:1rem;
+
+font-weight:800;
+
+color:#1a1a1b;
+
+}
+
+
+
+
+
+.help-grid{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:1rem;
+
+}
+
+
+
+.help-grid div{
+
+padding:1.5rem;
+
+border-radius:18px;
+
+border:1px solid #ddd;
+
+}
+
+
+
+
+@media(max-width:800px){
+
+
+.stats{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+
+
+.cards,
+.help-grid{
+
+grid-template-columns:1fr;
+
+}
+
+
+}
+
+
+
+</style>

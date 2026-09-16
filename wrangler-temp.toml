@@ -1,0 +1,13 @@
+name = "wordle-hint-today"
+compatibility_date = "2026-09-16"
+
+# Worker ko batayen ke Astro ne server kahan banaya hai
+main = "dist/server/entry.mjs"
+
+# Static files (jaise logo.webp aur CSS) ke liye
+assets = { directory = "dist/client" }
+
+# Aapka Cache Database (KV)
+[[kv_namespaces]]
+binding = "WORDLE_CACHE"
+id = "1074e27dcebd4b6cb2b72a47888d01ad"

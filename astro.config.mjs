@@ -1,17 +1,36 @@
 import { defineConfig } from 'astro/config';
+
 import tailwindcss from '@tailwindcss/vite';
+
 import cloudflare from '@astrojs/cloudflare';
+
+import sitemap from '@astrojs/sitemap';
+
 
 export default defineConfig({
 
-  output: 'server',
+site:"https://wordlehinttoday.online",
 
-  adapter: cloudflare(),
+output:"server",
 
-  vite: {
-    plugins: [
-      tailwindcss()
-    ]
-  }
+adapter:cloudflare({
+
+platformProxy:{
+enabled:false
+},
+
+imageService:"passthrough"
+
+}),
+
+integrations:[
+sitemap()
+],
+
+vite:{
+plugins:[
+tailwindcss()
+]
+}
 
 });

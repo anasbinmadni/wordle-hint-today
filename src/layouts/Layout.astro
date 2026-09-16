@@ -1,89 +1,239 @@
 ---
 import '../styles/global.css';
 
+import SEO from '../components/SEO.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+
 interface Props {
 	title: string;
+	description?: string;
 }
 
-const { title } = Astro.props;
-const currentYear = new Date().getFullYear();
+
+const {
+	title,
+	description = "Daily Wordle hints, clues and answers."
+} = Astro.props;
+
+
+// Automatic Canonical URL
+const canonical = new URL(
+	Astro.url.pathname,
+	Astro.site ?? "https://wordlehinttoday.online"
+).href;
+
+
+
+const websiteSchema = {
+
+"@context":"https://schema.org",
+
+"@graph":[
+
+
+{
+"@type":"Organization",
+
+"@id":"https://wordlehinttoday.online/#organization",
+
+"name":"Wordle Hint Today",
+
+"url":"https://wordlehinttoday.online",
+
+"logo":{
+
+"@type":"ImageObject",
+
+"url":"https://wordlehinttoday.online/logo.webp"
+
+}
+
+},
+
+
+
+{
+"@type":"WebSite",
+
+"@id":"https://wordlehinttoday.online/#website",
+
+"url":"https://wordlehinttoday.online",
+
+"name":"Wordle Hint Today",
+
+"description":
+"Daily Wordle hints, clues, answers and solving guides.",
+
+
+"publisher":{
+
+"@id":"https://wordlehinttoday.online/#organization"
+
+},
+
+
+"potentialAction":{
+
+"@type":"SearchAction",
+
+"target":{
+
+"@type":"EntryPoint",
+
+"urlTemplate":
+"https://wordlehinttoday.online/search?q={search_term_string}"
+
+},
+
+"query-input":
+"required name=search_term_string"
+
+}
+
+
+}
+
+]
+
+};
+
 ---
 
 <!doctype html>
+
 <html lang="en" class="scroll-smooth">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-		
-		<!-- Favicon updated to WebP -->
-		<link rel="icon" type="image/webp" href="/logo.webp" />
-		<meta name="generator" content={Astro.generator} />
-		
-		<!-- NYT Style Font Setup -->
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Karnak:wght@400;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-		
-		<title>{title}</title>
-		
-		<style>
-			body {
-				font-family: 'Open Sans', sans-serif;
-				color: #1a1a1b;
-			}
-			.nyt-title {
-				font-family: 'Karnak', serif; 
-			}
-		</style>
-	</head>
-	<body class="bg-white flex flex-col min-h-screen">
-		
-		<!-- NYT Style Centered Header -->
-		<header class="bg-white border-b border-[#d3d6da] h-16 flex items-center justify-center sticky top-0 z-50">
-			<!-- Mobile Hamburger Icon -->
-			<div class="absolute left-4 cursor-pointer md:hidden">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-					<path d="M3 12H21M3 6H21M3 18H21" stroke="#1a1a1b" stroke-width="2" stroke-linecap="round"/>
-				</svg>
-			</div>
 
-			<!-- Centered Logo & Title (Updated to WebP) -->
-			<a href="/" class="flex items-center gap-2 text-2xl md:text-3xl font-black tracking-tight nyt-title">
-				<img src="/logo.webp" alt="Wordle Logo" class="w-8 h-8 md:w-10 md:h-10 rounded-sm" />
-				<span class="text-[#1a1a1b]">Wordle Hint</span>
-			</a>
 
-			<!-- Desktop Nav -->
-			<nav class="hidden md:flex absolute right-6 gap-5 text-sm font-semibold text-gray-600">
-				<a href="/past-answers" class="hover:text-[#1a1a1b] transition-colors">Past Answers</a>
-				<a href="/blog/how-to-play-wordle" class="hover:text-[#1a1a1b] transition-colors">How to Play</a>
-			</nav>
-		</header>
+<head>
 
-		<!-- Main Content Area -->
-		<div class="flex-grow">
-			<slot />
-		</div>
 
-		<!-- Clean NYT Style Footer -->
-		<footer class="bg-white text-gray-500 py-10 border-t border-[#d3d6da]">
-			<div class="max-w-3xl mx-auto px-4 flex flex-col items-center text-center space-y-4">
-				<!-- Footer Logo (Updated to WebP) -->
-				<div class="flex items-center gap-2 opacity-80 grayscale">
-					<img src="/logo.webp" alt="Wordle Logo" class="w-6 h-6" />
-					<span class="font-bold text-[#1a1a1b] tracking-widest uppercase text-sm">Wordle Hint Today</span>
-				</div>
-				<div class="flex flex-wrap justify-center gap-4 text-xs font-semibold">
-					<a href="/past-answers" class="hover:text-[#1a1a1b]">Past Answers</a>
-					<a href="/privacy-policy" class="hover:text-[#1a1a1b]">Privacy Policy</a>
-					<a href="/terms-of-service" class="hover:text-[#1a1a1b]">Terms</a>
-					<a href="/contact" class="hover:text-[#1a1a1b]">Contact</a>
-				</div>
-				<p class="text-[10px] mt-4 max-w-md">
-					&copy; {currentYear} WordleHintToday.online. We are an independent educational resource and are not affiliated with, sponsored by, or endorsed by The New York Times Company.
-				</p>
-			</div>
-		</footer>
+<meta charset="UTF-8" />
 
-	</body>
+
+<meta 
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+
+<SEO
+
+title={title}
+
+description={description}
+
+canonical={canonical}
+
+/>
+
+
+
+<script
+type="application/ld+json"
+set:html={JSON.stringify(websiteSchema)}
+/>
+
+
+
+<link
+rel="icon"
+type="image/webp"
+href="/logo.webp"
+/>
+
+
+
+<link
+rel="preconnect"
+href="https://fonts.googleapis.com"
+/>
+
+
+<link
+rel="preconnect"
+href="https://fonts.gstatic.com"
+crossorigin
+/>
+
+
+
+<link
+
+href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Karnak:wght@400;700&display=swap"
+
+rel="stylesheet"
+
+/>
+
+
+
+<style>
+
+
+body {
+
+font-family:
+'Open Sans',
+sans-serif;
+
+color:#1a1a1b;
+
+background:white;
+
+-webkit-font-smoothing:antialiased;
+
+}
+
+
+
+.nyt-title {
+
+font-family:
+'Karnak',
+Georgia,
+serif;
+
+}
+
+
+
+html {
+
+scroll-behavior:smooth;
+
+}
+
+
+</style>
+
+
+
+</head>
+
+
+
+<body class="min-h-screen flex flex-col">
+
+
+<Header />
+
+
+
+<main class="flex-grow">
+
+<slot />
+
+</main>
+
+
+
+<Footer />
+
+
+
+</body>
+
+
 </html>

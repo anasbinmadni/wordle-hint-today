@@ -1,0 +1,448 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SEO from "../components/SEO.astro";
+
+
+const currentDate = new Date();
+
+const archives = [];
+
+
+for(let i = 1; i <= 30; i++){
+
+	const date = new Date();
+
+	date.setDate(date.getDate() - i);
+
+
+	const year = date.getFullYear();
+
+	const month =
+	String(date.getMonth()+1).padStart(2,"0");
+
+	const day =
+	String(date.getDate()).padStart(2,"0");
+
+
+	archives.push({
+
+		date:
+		date.toLocaleDateString(
+		"en-US",
+		{
+			month:"long",
+			day:"numeric",
+			year:"numeric"
+		}
+		),
+
+		url:
+		`/wordle-hint-${1000-i}-${year}-${month}-${day}`
+
+	});
+
+}
+
+
+---
+
+<Layout
+
+title="Wordle Archive - Past Wordle Answers & History"
+
+description="Browse the Wordle archive with previous answers, puzzle history, and daily solutions from past Wordle games."
+
+>
+
+
+
+<SEO
+
+title="Wordle Archive - Past Wordle Answers"
+
+description="Explore previous Wordle answers and puzzle history. Browse old Wordle solutions and daily puzzle archives."
+
+/>
+
+
+
+
+<main class="page">
+
+
+<section class="hero">
+
+
+<h1>
+Wordle Archive
+</h1>
+
+
+<p>
+Explore previous Wordle answers, puzzle history, and past daily solutions.
+</p>
+
+
+</section>
+
+
+
+
+<section class="card">
+
+
+<h2>
+Past Wordle Answers
+</h2>
+
+
+<p>
+
+Looking for an older Wordle solution?
+
+Browse our archive of previous puzzles and revisit daily Wordle answers.
+
+</p>
+
+
+</section>
+
+
+
+
+
+<section class="archive-grid">
+
+
+{
+
+archives.map((item,index)=>(
+
+<a
+
+href={item.url}
+
+class="archive-card"
+
+>
+
+<span>
+Wordle #{1000-index}
+</span>
+
+
+<strong>
+{item.date}
+</strong>
+
+
+<span class="arrow">
+→
+</span>
+
+
+</a>
+
+))
+
+}
+
+
+
+</section>
+
+
+
+
+<section class="card">
+
+
+<h2>
+Why Use The Wordle Archive?
+</h2>
+
+
+<ul>
+
+<li>
+Review previous Wordle solutions.</li>
+
+<li>
+Improve your solving strategy.</li>
+
+<li>
+Study common five-letter words.</li>
+
+<li>
+Compare puzzle difficulty.</li>
+
+</ul>
+
+
+</section>
+
+
+
+
+
+<section class="card">
+
+
+<h2>
+Explore More Wordle Tools
+</h2>
+
+
+<div class="links">
+
+
+<a href="/wordle-solver">
+Wordle Solver
+</a>
+
+
+<a href="/today-wordle-hint">
+Today's Hints
+</a>
+
+
+<a href="/today-wordle-answer">
+Today's Answer
+</a>
+
+
+</div>
+
+
+</section>
+
+
+
+</main>
+
+
+
+</Layout>
+
+
+
+<style>
+
+
+.page{
+
+max-width:900px;
+
+margin:auto;
+
+padding:3rem 1rem;
+
+}
+
+
+
+.hero{
+
+text-align:center;
+
+margin-bottom:3rem;
+
+}
+
+
+.hero h1{
+
+font-family:Georgia,serif;
+
+font-size:3.5rem;
+
+font-weight:900;
+
+}
+
+
+
+.hero p{
+
+font-size:1.2rem;
+
+color:#666;
+
+}
+
+
+
+.card{
+
+background:white;
+
+border:1px solid #d3d6da;
+
+border-radius:24px;
+
+padding:2rem;
+
+margin-bottom:2rem;
+
+}
+
+
+
+.card h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+font-weight:900;
+
+margin-bottom:1rem;
+
+}
+
+
+
+.card p{
+
+line-height:1.8;
+
+color:#444;
+
+}
+
+
+
+.archive-grid{
+
+display:grid;
+
+grid-template-columns:repeat(2,1fr);
+
+gap:1rem;
+
+}
+
+
+
+.archive-card{
+
+position:relative;
+
+background:white;
+
+border:1px solid #d3d6da;
+
+padding:1.4rem;
+
+border-radius:16px;
+
+display:flex;
+
+flex-direction:column;
+
+gap:.4rem;
+
+transition:.25s;
+
+}
+
+
+
+.archive-card:hover{
+
+transform:translateY(-4px);
+
+box-shadow:
+0 10px 25px rgba(0,0,0,.08);
+
+}
+
+
+
+.archive-card span:first-child{
+
+font-weight:900;
+
+color:#1a1a1b;
+
+}
+
+
+
+.archive-card strong{
+
+color:#666;
+
+}
+
+
+
+.arrow{
+
+position:absolute;
+
+right:20px;
+
+top:50%;
+
+}
+
+
+
+.links{
+
+display:flex;
+
+gap:1rem;
+
+flex-wrap:wrap;
+
+}
+
+
+
+.links a{
+
+background:#1a1a1b;
+
+color:white;
+
+padding:.8rem 1.2rem;
+
+border-radius:10px;
+
+font-weight:900;
+
+}
+
+
+
+li{
+
+margin-bottom:.8rem;
+
+}
+
+
+
+@media(max-width:700px){
+
+
+.hero h1{
+
+font-size:2.4rem;
+
+}
+
+
+.archive-grid{
+
+grid-template-columns:1fr;
+
+}
+
+
+}
+
+
+</style>

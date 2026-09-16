@@ -1,0 +1,296 @@
+---
+interface Props {
+	date: string;
+	puzzleNumber: number;
+}
+
+const {
+	date,
+	puzzleNumber
+} = Astro.props;
+
+---
+
+<section class="hero-section">
+
+	<div class="hero-container">
+
+
+		<div class="badge">
+			<span class="dot"></span>
+			Daily Wordle Hints Updated
+		</div>
+
+
+
+		<h1 class="hero-title">
+			Wordle Hint Today
+		</h1>
+
+
+
+		<p class="hero-description">
+
+			Get today's Wordle hints, clues, and answer.
+			Solve the puzzle step-by-step without revealing the solution too early.
+
+		</p>
+
+
+
+
+		<div class="puzzle-info">
+
+
+			<div class="info-card">
+
+				<span class="label">
+					Today's Puzzle
+				</span>
+
+				<strong>
+					#{puzzleNumber}
+				</strong>
+
+			</div>
+
+
+
+
+			<div class="info-card">
+
+				<span class="label">
+					Date
+				</span>
+
+				<strong>
+					{date}
+				</strong>
+
+			</div>
+
+
+
+		</div>
+
+
+
+	</div>
+
+</section>
+
+
+
+
+<style>
+
+.hero-section{
+
+	padding:4rem 1rem 2rem;
+
+}
+
+
+.hero-container{
+
+	max-width:760px;
+	margin:auto;
+	text-align:center;
+
+	animation:fadeUp .7s ease;
+
+}
+
+
+
+.badge{
+
+	display:inline-flex;
+	align-items:center;
+	gap:.5rem;
+
+	background:#f7f7f7;
+
+	border:1px solid #d3d6da;
+
+	padding:.45rem 1rem;
+
+	border-radius:999px;
+
+	font-size:.85rem;
+
+	font-weight:700;
+
+	color:#555;
+
+	margin-bottom:1.5rem;
+
+}
+
+
+
+.dot{
+
+	width:8px;
+	height:8px;
+
+	background:#6aaa64;
+
+	border-radius:50%;
+
+}
+
+
+
+.hero-title{
+
+	font-family:Georgia,serif;
+
+	font-size:clamp(2.4rem,6vw,4rem);
+
+	font-weight:900;
+
+	letter-spacing:-.04em;
+
+	color:#1a1a1b;
+
+	margin-bottom:1rem;
+
+}
+
+
+
+.hero-description{
+
+	font-size:1.1rem;
+
+	line-height:1.7;
+
+	color:#666;
+
+	max-width:620px;
+
+	margin:auto;
+
+}
+
+
+
+.puzzle-info{
+
+	display:flex;
+
+	justify-content:center;
+
+	gap:1rem;
+
+	margin-top:2rem;
+
+	flex-wrap:wrap;
+
+}
+
+
+
+.info-card{
+
+	background:white;
+
+	border:1px solid #d3d6da;
+
+	border-radius:16px;
+
+	padding:1rem 1.5rem;
+
+	min-width:160px;
+
+	box-shadow:
+		0 8px 25px rgba(0,0,0,.04);
+
+	transition:.25s ease;
+
+}
+
+
+
+.info-card:hover{
+
+	transform:translateY(-4px);
+
+	box-shadow:
+		0 12px 30px rgba(0,0,0,.08);
+
+}
+
+
+
+.label{
+
+	display:block;
+
+	font-size:.75rem;
+
+	text-transform:uppercase;
+
+	letter-spacing:.08em;
+
+	color:#777;
+
+	margin-bottom:.4rem;
+
+}
+
+
+
+.info-card strong{
+
+	font-size:1.1rem;
+
+	color:#1a1a1b;
+
+}
+
+
+
+@keyframes fadeUp{
+
+	from{
+
+		opacity:0;
+
+		transform:translateY(20px);
+
+	}
+
+
+	to{
+
+		opacity:1;
+
+		transform:none;
+
+	}
+
+}
+
+
+
+@media(max-width:640px){
+
+.hero-section{
+
+	padding-top:2.5rem;
+
+}
+
+
+.hero-description{
+
+	font-size:1rem;
+
+}
+
+
+}
+
+</style>

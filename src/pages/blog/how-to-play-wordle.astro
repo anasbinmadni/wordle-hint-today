@@ -1,0 +1,562 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import SEO from "../../components/SEO.astro";
+import FAQ from "../../components/FAQ.astro";
+
+
+const schema = {
+
+"@context":"https://schema.org",
+
+"@type":"Article",
+
+"headline":"How To Play Wordle: Complete Beginner Guide",
+
+"description":
+"Learn how to play Wordle, understand the rules, and improve your daily puzzle solving skills.",
+
+"author":{
+
+"@type":"Organization",
+
+"name":"Wordle Hint Today"
+
+},
+
+"publisher":{
+
+"@type":"Organization",
+
+"name":"Wordle Hint Today"
+
+}
+
+};
+
+
+---
+
+
+<Layout
+
+title="How To Play Wordle: Complete Beginner Guide"
+
+description="Learn how to play Wordle with simple rules, strategies, and beginner tips."
+
+>
+
+
+<SEO
+
+title="How To Play Wordle: Complete Beginner Guide"
+
+description="Learn Wordle rules, gameplay instructions, and beginner strategies to solve daily puzzles."
+
+/>
+
+
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+
+
+
+<main class="article">
+
+
+<header>
+
+
+<h1>
+How To Play Wordle: Complete Beginner Guide
+</h1>
+
+
+<p class="intro">
+
+Learn the rules of Wordle, how guesses work, and simple strategies to solve the daily puzzle.
+
+</p>
+
+
+</header>
+
+
+
+
+
+<section>
+
+
+<h2>
+What Is Wordle?
+</h2>
+
+
+<p>
+
+Wordle is a daily five-letter word puzzle where players try to discover one hidden word within six attempts.
+
+Each guess provides clues using colored tiles that show whether letters are correct, misplaced, or not included in the answer.
+
+</p>
+
+
+</section>
+
+
+
+
+
+<section>
+
+
+<h2>
+How Does Wordle Work?
+</h2>
+
+
+<p>
+
+Every day, Wordle gives players a new five-letter word challenge.
+
+You enter a word, submit your guess, and receive feedback.
+
+The goal is to identify the correct word using these clues.
+
+</p>
+
+
+</section>
+
+
+
+
+
+<section>
+
+
+<h2>
+Understanding Wordle Colors
+</h2>
+
+
+
+<div class="tiles">
+
+
+<div>
+
+<span class="green">
+A
+</span>
+
+<p>
+Correct letter and correct position.
+</p>
+
+</div>
+
+
+
+<div>
+
+<span class="yellow">
+B
+</span>
+
+<p>
+Correct letter but wrong position.
+</p>
+
+</div>
+
+
+
+
+<div>
+
+<span class="gray">
+C
+</span>
+
+<p>
+Letter does not appear in the answer.
+</p>
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+
+
+<section>
+
+
+<h2>
+Wordle Rules
+</h2>
+
+
+<ul>
+
+<li>
+You have six attempts to solve the puzzle.
+</li>
+
+<li>
+Your answer must contain five letters.
+</li>
+
+<li>
+Letters can repeat in some answers.
+</li>
+
+<li>
+Each guess gives clues for the next attempt.
+</li>
+
+</ul>
+
+
+</section>
+
+
+
+
+
+<section>
+
+
+<h2>
+Beginner Wordle Tips
+</h2>
+
+
+<h3>
+1. Start With Strong Opening Words
+</h3>
+
+
+<p>
+
+Use words containing common vowels and frequently used letters.
+
+Examples include words with letters like A, E, R, S, T, and L.
+
+</p>
+
+
+
+
+<h3>
+2. Use The Feedback Carefully
+</h3>
+
+
+<p>
+
+Green letters should remain in the same position.
+
+Yellow letters should move to different positions.
+
+Gray letters should usually be avoided.
+
+</p>
+
+
+
+
+<h3>
+3. Avoid Random Guessing
+</h3>
+
+
+<p>
+
+Use each attempt to collect information instead of simply trying random words.
+
+</p>
+
+
+</section>
+
+
+
+
+
+<section>
+
+
+<h2>
+Need Help With Today's Puzzle?
+</h2>
+
+
+<p>
+
+If you are stuck, you can use our progressive hints instead of revealing the answer immediately.
+
+</p>
+
+
+<a href="/today-wordle-hint">
+Get Today's Wordle Hint →
+</a>
+
+
+</section>
+
+
+
+
+
+<section>
+
+
+<h2>
+Want More Wordle Tools?
+</h2>
+
+
+<p>
+
+You can also use our Wordle solver to find possible words based on your guesses.
+
+</p>
+
+
+<a href="/wordle-solver">
+Try Wordle Solver →
+</a>
+
+
+</section>
+
+
+
+
+<FAQ />
+
+
+</main>
+
+
+
+</Layout>
+
+
+
+
+<style>
+
+
+.article{
+
+max-width:850px;
+
+margin:auto;
+
+padding:3rem 1rem;
+
+}
+
+
+
+header{
+
+text-align:center;
+
+margin-bottom:3rem;
+
+}
+
+
+
+h1{
+
+font-family:Georgia,serif;
+
+font-size:3.4rem;
+
+font-weight:900;
+
+}
+
+
+
+.intro{
+
+font-size:1.2rem;
+
+color:#666;
+
+}
+
+
+
+section{
+
+margin-bottom:3rem;
+
+}
+
+
+
+h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+font-weight:900;
+
+margin-bottom:1rem;
+
+}
+
+
+
+h3{
+
+font-size:1.3rem;
+
+font-weight:900;
+
+margin-top:2rem;
+
+}
+
+
+
+p{
+
+line-height:1.9;
+
+color:#444;
+
+}
+
+
+
+li{
+
+margin-bottom:.8rem;
+
+line-height:1.7;
+
+}
+
+
+
+.tiles{
+
+display:grid;
+
+grid-template-columns:repeat(3,1fr);
+
+gap:1rem;
+
+}
+
+
+
+.tiles div{
+
+text-align:center;
+
+background:#f8f8f8;
+
+padding:1.5rem;
+
+border-radius:16px;
+
+}
+
+
+
+.tiles span{
+
+display:inline-flex;
+
+width:55px;
+
+height:55px;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:2rem;
+
+font-weight:900;
+
+color:white;
+
+margin-bottom:1rem;
+
+}
+
+
+
+.green{
+
+background:#6aaa64;
+
+}
+
+
+
+.yellow{
+
+background:#c9b458;
+
+}
+
+
+
+.gray{
+
+background:#787c7e;
+
+}
+
+
+
+a{
+
+font-weight:900;
+
+color:#1a1a1b;
+
+}
+
+
+
+@media(max-width:700px){
+
+h1{
+
+font-size:2.3rem;
+
+}
+
+
+
+.tiles{
+
+grid-template-columns:1fr;
+
+}
+
+}
+
+
+</style>

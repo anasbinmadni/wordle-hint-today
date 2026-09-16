@@ -1,0 +1,337 @@
+<div class="solver-box">
+
+
+<h2>
+Wordle Solver
+</h2>
+
+
+<p>
+Enter the letters you know and find possible Wordle words.
+</p>
+
+
+
+<input
+id="pattern"
+placeholder="_ A _ _ E"
+maxlength="5"
+/>
+
+
+
+<input
+id="excluded"
+placeholder="Letters not in the word (RST)"
+/>
+
+
+
+<button id="solve">
+Find Words
+</button>
+
+
+
+<div id="results"></div>
+
+
+
+</div>
+
+
+
+<script>
+
+
+const words = [
+
+"about",
+"above",
+"abuse",
+"acute",
+"adore",
+"alone",
+"apple",
+"arise",
+"audio",
+"beach",
+"begin",
+"black",
+"brain",
+"bread",
+"bring",
+"brown",
+"chair",
+"check",
+"child",
+"clean",
+"clear",
+"close",
+"cloud",
+"crane",
+"crazy",
+"cream",
+"dream",
+"early",
+"earth",
+"enjoy",
+"enter",
+"faith",
+"false",
+"field",
+"final",
+"flame",
+"floor",
+"focus",
+"fresh",
+"front",
+"fruit",
+"glass",
+"great",
+"green",
+"happy",
+"heart",
+"house",
+"human",
+"image",
+"index",
+"judge",
+"light",
+"magic",
+"match",
+"money",
+"mouse",
+"night",
+"ocean",
+"paint",
+"party",
+"peace",
+"phone",
+"plant",
+"place",
+"queen",
+"quick",
+"quiet",
+"radio",
+"raise",
+"river",
+"round",
+"score",
+"share",
+"shape",
+"shine",
+"short",
+"smart",
+"smile",
+"sound",
+"space",
+"spare",
+"stone",
+"store",
+"table",
+"teach",
+"thank",
+"their",
+"thing",
+"tiger",
+"today",
+"touch",
+"train",
+"trust",
+"under",
+"water",
+"world",
+"write"
+
+];
+
+
+
+const button =
+document.querySelector("#solve");
+
+
+button?.addEventListener(
+"click",
+()=>{
+
+
+const pattern =
+(document.querySelector("#pattern") as HTMLInputElement)
+.value
+.toLowerCase()
+.replace(/\s/g,"");
+
+
+
+const excluded =
+(document.querySelector("#excluded") as HTMLInputElement)
+.value
+.toLowerCase();
+
+
+
+const result =
+words.filter(word=>{
+
+
+if(word.length!==5)
+return false;
+
+
+
+for(let i=0;i<5;i++){
+
+if(
+pattern[i]!="_" &&
+pattern[i] &&
+word[i]!==pattern[i]
+)
+return false;
+
+}
+
+
+
+for(const letter of excluded){
+
+if(word.includes(letter))
+return false;
+
+}
+
+
+
+return true;
+
+
+});
+
+
+
+document.querySelector("#results")!.innerHTML =
+
+result.length
+
+?
+result
+.map(w=>`<span>${w}</span>`)
+.join("")
+
+:
+
+"No matching words found";
+
+
+});
+
+
+</script>
+
+
+
+<style>
+
+
+.solver-box{
+
+background:white;
+
+border:1px solid #d3d6da;
+
+border-radius:24px;
+
+padding:2rem;
+
+margin:2rem 0;
+
+text-align:center;
+
+}
+
+
+
+.solver-box h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+font-weight:900;
+
+}
+
+
+
+input{
+
+width:100%;
+
+padding:1rem;
+
+margin:.5rem 0;
+
+border:1px solid #ccc;
+
+border-radius:10px;
+
+font-size:1rem;
+
+}
+
+
+
+button{
+
+background:#6aaa64;
+
+color:white;
+
+border:none;
+
+padding:1rem 2rem;
+
+border-radius:10px;
+
+font-weight:900;
+
+cursor:pointer;
+
+}
+
+
+
+#results{
+
+display:flex;
+
+flex-wrap:wrap;
+
+gap:.5rem;
+
+margin-top:2rem;
+
+justify-content:center;
+
+}
+
+
+
+#results span{
+
+background:#1a1a1b;
+
+color:white;
+
+padding:.5rem 1rem;
+
+border-radius:8px;
+
+font-weight:800;
+
+}
+
+
+
+</style>

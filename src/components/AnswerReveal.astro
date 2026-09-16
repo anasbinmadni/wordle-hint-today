@@ -1,0 +1,205 @@
+---
+import WordleTiles from "./WordleTiles.astro";
+
+
+interface Props {
+
+	answer:string;
+
+	puzzleNumber:number;
+
+}
+
+
+const {
+	answer,
+	puzzleNumber
+
+} = Astro.props;
+
+---
+
+
+<section class="answer-section">
+
+
+<div class="answer-card">
+
+
+<div class="header">
+
+
+<h2>
+	Ready to see the answer?
+</h2>
+
+
+<p>
+	Reveal the solution only when you are ready.
+</p>
+
+
+</div>
+
+
+
+<details class="reveal-box">
+
+
+<summary>
+	Reveal Today's Wordle Answer
+</summary>
+
+
+
+<div class="board-wrapper">
+
+<WordleTiles 
+	word={answer}
+	color="green"
+/>
+
+</div>
+
+
+
+
+<div class="solution-text">
+
+Wordle #{puzzleNumber} Answer:
+
+<strong>
+{answer.toUpperCase()}
+</strong>
+
+
+</div>
+
+
+
+</details>
+
+
+</div>
+
+
+</section>
+
+
+
+<style>
+
+
+.answer-section{
+
+	margin:3rem auto;
+
+}
+
+
+
+.answer-card{
+
+background:white;
+
+border:1px solid #d3d6da;
+
+border-radius:22px;
+
+padding:2rem;
+
+text-align:center;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.05);
+
+}
+
+
+
+.header h2{
+
+font-family:Georgia,serif;
+
+font-size:2rem;
+
+font-weight:900;
+
+margin-bottom:.5rem;
+
+}
+
+
+
+.header p{
+
+color:#666;
+
+margin-bottom:2rem;
+
+}
+
+
+
+.reveal-box summary{
+
+
+display:inline-flex;
+
+background:#1a1a1b;
+
+color:white;
+
+padding:1rem 2rem;
+
+border-radius:12px;
+
+font-weight:800;
+
+cursor:pointer;
+
+transition:.25s ease;
+
+}
+
+
+
+.reveal-box summary:hover{
+
+background:#333;
+
+}
+
+
+
+.board-wrapper{
+
+margin-top:2rem;
+
+}
+
+
+
+.solution-text{
+
+margin-top:1.5rem;
+
+color:#555;
+
+font-size:1.1rem;
+
+}
+
+
+
+.solution-text strong{
+
+font-size:1.3rem;
+
+color:#1a1a1b;
+
+}
+
+
+
+</style>

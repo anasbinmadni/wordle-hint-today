@@ -1,0 +1,169 @@
+---
+interface Props {
+	word: string;
+	color?: "green" | "yellow" | "gray";
+	animate?: boolean;
+}
+
+const {
+	word,
+	color = "green",
+	animate = true
+} = Astro.props;
+
+
+const letters = word.toUpperCase().split("");
+
+---
+
+<div class={`tiles ${animate ? "animated" : ""}`}>
+
+{
+	letters.map((letter,index)=>(
+		
+		<div 
+			class={`tile ${color}`}
+			style={`--delay:${index * 120}ms`}
+		>
+			{letter}
+		</div>
+
+	))
+}
+
+</div>
+
+
+
+<style>
+
+
+.tiles{
+
+display:flex;
+
+justify-content:center;
+
+gap:.5rem;
+
+}
+
+
+
+.tile{
+
+width:58px;
+
+height:58px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+
+font-size:2rem;
+
+font-weight:900;
+
+
+color:white;
+
+
+border-radius:6px;
+
+
+}
+
+
+
+.green{
+
+background:#6aaa64;
+
+}
+
+
+.yellow{
+
+background:#c9b458;
+
+}
+
+
+.gray{
+
+background:#787c7e;
+
+}
+
+
+
+
+.animated .tile{
+
+opacity:0;
+
+transform:
+rotateX(90deg);
+
+
+animation:
+flip .45s ease forwards;
+
+
+animation-delay:
+var(--delay);
+
+}
+
+
+
+
+@keyframes flip{
+
+
+from{
+
+opacity:0;
+
+transform:
+rotateX(90deg);
+
+}
+
+
+to{
+
+opacity:1;
+
+transform:
+rotateX(0);
+
+}
+
+
+}
+
+
+
+@media(max-width:500px){
+
+
+.tile{
+
+width:45px;
+
+height:45px;
+
+font-size:1.5rem;
+
+}
+
+
+}
+
+
+
+</style>

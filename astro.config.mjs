@@ -4,9 +4,24 @@ import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
-  output: 'server', // <-- YEH HAI WOH MAGIC LINE JO SSR ON KAREGI
-  adapter: cloudflare(),
+
+  // Enable SSR for Cloudflare Pages
+  output: 'server',
+
+  // Cloudflare adapter
+  adapter: cloudflare({
+    platformProxy: {
+      enabled: true
+    },
+
+    // Disable automatic SESSION KV generation
+    sessionKVBindingName: undefined
+  }),
+
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [
+      tailwindcss()
+    ]
   }
+
 });

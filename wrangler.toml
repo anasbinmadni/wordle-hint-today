@@ -1,12 +1,7 @@
 name = "wordle-hint-today"
-
 compatibility_date = "2026-09-16"
 
 pages_build_output_dir = "dist"
-
-compatibility_flags = [
-  "nodejs_compat"
-]
 
 [[kv_namespaces]]
 binding = "WORDLE_CACHE"

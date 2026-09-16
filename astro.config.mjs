@@ -6,9 +6,7 @@ export default defineConfig({
 
   output: 'server',
 
-  adapter: cloudflare({
-    mode: 'directory'
-  }),
+  adapter: cloudflare(),
 
   vite: {
     plugins: [

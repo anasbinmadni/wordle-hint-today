@@ -53,87 +53,112 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
     title={`Wordle Hint Today ${currentDate} - Daily Clues & Answer`}
     description="Get today's Wordle hint, progressive clues, answer reveal, and solving strategies. Use spoiler-free Wordle hints before checking the final answer."
 >
-    <main class="homepage">
+    <main class="homepage fade-in-up">
         <Hero date={currentDate} puzzleNumber={puzzleNumber} />
 
-        <HintCards
-            vowels={vowels}
-            consonants={consonants}
-            startingLetter={startingLetter}
-            endingLetter={endingLetter}
-            hasRepeating={hasRepeating}
-        />
+        <div class="interactive-section">
+            <HintCards
+                vowels={vowels}
+                consonants={consonants}
+                startingLetter={startingLetter}
+                endingLetter={endingLetter}
+                hasRepeating={hasRepeating}
+            />
+        </div>
 
-        <section class="answer-preview">
-            <h2>Today's Wordle Solution Preview</h2>
-            <p>Reveal the answer only when you are ready.</p>
-            
-            <div class="word-tiles" aria-label="Wordle answer">
-                {answer.split("").map((letter) => (
-                    <span class="word-tile">{letter}</span>
-                ))}
+        <section class="answer-preview interactive-card">
+            <div class="preview-content">
+                <span class="lock-icon">🔒</span>
+                <h2>Today's Wordle Solution Preview</h2>
+                <p>Reveal the answer only when you are absolutely ready.</p>
+                
+                <div class="word-tiles-locked" aria-label="Wordle answer hidden">
+                    {answer.split("").map(() => (
+                        <span class="word-tile-hidden">?</span>
+                    ))}
+                </div>
             </div>
         </section>
 
         <AnswerReveal answer={answer} puzzleNumber={puzzleNumber} />
 
         <section class="seo-content">
-            <h2>What is Wordle Hint Today?</h2>
-            <p>
-                Wordle Hint Today helps players solve the daily Wordle puzzle without immediately revealing the solution.
-                Our progressive clues provide helpful information including vowel count, starting letters, ending letters, and word patterns.
-                Players can choose how much assistance they need while keeping the challenge enjoyable.
-            </p>
+            <div class="seo-header">
+                <h2>What is Wordle Hint Today?</h2>
+                <p class="lead-text">
+                    Wordle Hint Today helps players solve the daily Wordle puzzle without immediately revealing the solution.
+                    Our progressive clues provide helpful information including vowel count, starting letters, ending letters, and word patterns.
+                </p>
+            </div>
 
             <h2>How Does Our Wordle Hint System Work?</h2>
-            <div class="steps">
-                <div>
-                    <span>1</span>
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-icon">1</div>
                     <h3>Start With Small Clues</h3>
-                    <p>Check simple hints like vowels and first letters.</p>
+                    <p>Check simple hints like vowels and first letters to jumpstart your brain.</p>
                 </div>
-                <div>
-                    <span>2</span>
+                <div class="step-card">
+                    <div class="step-icon">2</div>
                     <h3>Analyze The Pattern</h3>
-                    <p>Use letter positions and word structure to narrow possibilities.</p>
+                    <p>Use letter positions and word structure to narrow your possibilities.</p>
                 </div>
-                <div>
-                    <span>3</span>
+                <div class="step-card">
+                    <div class="step-icon">3</div>
                     <h3>Reveal When Needed</h3>
-                    <p>See the answer only if you need the final solution.</p>
+                    <p>See the exact answer only if you are out of guesses or truly stuck.</p>
                 </div>
             </div>
 
             <h2>Why Use Wordle Hint Today?</h2>
-            <div class="features">
-                <div>
+            <div class="features-container">
+                <div class="feature-card">
+                    <div class="feature-icon green">📅</div>
                     <h3>Daily Updated</h3>
-                    <p>Fresh hints prepared for every new Wordle puzzle.</p>
+                    <p>Fresh, accurate hints prepared instantly for every new Wordle puzzle.</p>
                 </div>
-                <div>
+                <div class="feature-card">
+                    <div class="feature-icon yellow">🛡️</div>
                     <h3>Spoiler Free</h3>
-                    <p>Control your experience with progressive clues.</p>
+                    <p>Control your own experience with safe, progressive, and hidden clues.</p>
                 </div>
-                <div>
+                <div class="feature-card">
+                    <div class="feature-icon dark">📚</div>
                     <h3>Wordle History</h3>
-                    <p>Explore previous answers and puzzle information.</p>
+                    <p>Explore previous answers and deep puzzle information in our archive.</p>
                 </div>
             </div>
 
-            <h2>Wordle Strategy Tips</h2>
-            <ul>
-                <li>Use starting words with common vowels.</li>
-                <li>Pay attention to repeated letters.</li>
-                <li>Avoid guessing letters already eliminated.</li>
-                <li>Practice with previous Wordle puzzles.</li>
-            </ul>
+            <div class="strategy-box">
+                <h2>Wordle Strategy Tips</h2>
+                <ul class="strategy-list">
+                    <li><strong>Start Strong:</strong> Use opening words with common vowels (e.g., AUDIO, SLATE).</li>
+                    <li><strong>Watch For Doubles:</strong> Pay attention to repeated letters, they catch many off-guard.</li>
+                    <li><strong>Process of Elimination:</strong> Avoid guessing gray letters that are already eliminated.</li>
+                    <li><strong>Study The Past:</strong> Practice with previous Wordle puzzles to learn common patterns.</li>
+                </ul>
+            </div>
 
-            <section class="links">
+            <section class="links-section">
                 <h2>Explore More Wordle Tools</h2>
-                <a href="/wordle-solver">Wordle Solver →</a>
-                <a href="/past-answers">Past Wordle Answers →</a>
-                <a href="/blog/best-wordle-starting-words">Best Starting Words Guide →</a>
-                <a href="/blog/wordle-tips-and-tricks">Wordle Tips & Tricks →</a>
+                <div class="links-grid">
+                    <a href="/wordle-solver" class="tool-link">
+                        <span class="tool-title">Wordle Solver</span>
+                        <span class="tool-arrow">→</span>
+                    </a>
+                    <a href="/past-answers" class="tool-link">
+                        <span class="tool-title">Past Answers Archive</span>
+                        <span class="tool-arrow">→</span>
+                    </a>
+                    <a href="/blog/best-wordle-starting-words" class="tool-link">
+                        <span class="tool-title">Best Starting Words</span>
+                        <span class="tool-arrow">→</span>
+                    </a>
+                    <a href="/blog/wordle-tips-and-tricks" class="tool-link">
+                        <span class="tool-title">Pro Tips & Tricks</span>
+                        <span class="tool-arrow">→</span>
+                    </a>
+                </div>
             </section>
         </section>
 
@@ -142,106 +167,261 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
 </Layout>
 
 <style>
+    /* Premium Animations */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
     .homepage {
         max-width: 900px;
         margin: auto;
         padding: 0 1rem;
+        font-family: 'Open Sans', sans-serif;
     }
 
+    .interactive-section {
+        margin: 2rem 0;
+    }
+
+    /* Premium Answer Preview Card */
     .answer-preview {
+        background: linear-gradient(145deg, #ffffff, #f9f9fa);
+        border: 1px solid #e3e6e8;
+        border-radius: 24px;
+        padding: 3rem 2rem;
         text-align: center;
         margin: 4rem auto;
-        padding: 2rem;
-        border-radius: 24px;
-        background: #fafafa;
-        border: 1px solid #ddd;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .preview-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .lock-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 1rem;
     }
 
     .answer-preview h2 {
-        font-family: Georgia, serif;
-        font-size: 2rem;
+        font-family: 'Georgia', serif;
+        font-size: 2.2rem;
         font-weight: 900;
+        color: #1a1a1b;
+        margin-bottom: 0.5rem;
     }
 
+    .answer-preview p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    .word-tiles-locked {
+        display: flex;
+        justify-content: center;
+        gap: 0.6rem;
+    }
+
+    .word-tile-hidden {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 55px;
+        height: 55px;
+        background: #e3e6e8;
+        color: #a0a5aa;
+        font-size: 2rem;
+        font-weight: 900;
+        border-radius: 8px;
+        font-family: 'Georgia', serif;
+        border: 2px dashed #c0c5c9;
+    }
+
+    /* SEO Content Styling */
     .seo-content {
-        margin-top: 4rem;
-        line-height: 1.8;
+        margin-top: 5rem;
     }
 
     .seo-content h2 {
-        font-family: Georgia, serif;
-        font-size: 2rem;
+        font-family: 'Georgia', serif;
+        font-size: 2.2rem;
         font-weight: 900;
-        margin: 3rem 0 1rem;
+        margin: 4rem 0 1.5rem;
         color: #1a1a1b;
+        position: relative;
     }
 
-    .steps {
+    .lead-text {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: #444;
+        background: #fbfbfc;
+        padding: 1.5rem;
+        border-left: 4px solid #6aaa64;
+        border-radius: 0 12px 12px 0;
+    }
+
+    /* Step Cards */
+    .steps-container, .features-container {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        gap: 1.5rem;
+        margin-top: 2rem;
     }
 
-    .steps div,
-    .features div {
-        border: 1px solid #ddd;
-        border-radius: 18px;
-        padding: 1.5rem;
-        background: white;
-        transition: 0.3s;
+    .step-card, .feature-card {
+        background: #ffffff;
+        border: 1px solid #eaeced;
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.02);
     }
 
-    .steps div:hover,
-    .features div:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    .step-card:hover, .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        border-color: #d3d6da;
     }
 
-    .steps span {
-        display: inline-flex;
-        width: 35px;
-        height: 35px;
+    .step-icon {
+        display: flex;
         align-items: center;
         justify-content: center;
+        width: 45px;
+        height: 45px;
         background: #1a1a1b;
-        color: white;
-        border-radius: 50%;
+        color: #ffffff;
+        font-size: 1.2rem;
         font-weight: 900;
-    }
-
-    .features {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-
-    .links {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .links a {
-        padding: 1rem;
         border-radius: 12px;
-        background: #f5f5f5;
-        font-weight: 800;
-        color: #1a1a1b;
-        transition: 0.2s;
-    }
-    
-    .links a:hover {
-        background: #e8e8e8;
+        margin-bottom: 1.5rem;
     }
 
-    @media (max-width: 700px) {
-        .steps,
-        .features {
+    .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .step-card h3, .feature-card h3 {
+        font-family: 'Georgia', serif;
+        font-size: 1.3rem;
+        font-weight: 900;
+        color: #1a1a1b;
+        margin-bottom: 0.8rem;
+    }
+
+    .step-card p, .feature-card p {
+        color: #666;
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    /* Strategy Box */
+    .strategy-box {
+        background: #fdfbf7;
+        border: 1px solid #e8e2d5;
+        border-radius: 24px;
+        padding: 3rem;
+        margin: 4rem 0;
+    }
+
+    .strategy-box h2 {
+        margin-top: 0;
+    }
+
+    .strategy-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .strategy-list li {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1.2rem;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    .strategy-list li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #6aaa64;
+        font-weight: 900;
+        font-size: 1.2rem;
+    }
+
+    /* Links Grid */
+    .links-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .tool-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        background: #1a1a1b;
+        color: #ffffff;
+        text-decoration: none;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        transition: all 0.25s ease;
+    }
+
+    .tool-link:hover {
+        background: #6aaa64;
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(106, 170, 100, 0.3);
+    }
+
+    .tool-arrow {
+        font-size: 1.4rem;
+        transition: transform 0.2s ease;
+    }
+
+    .tool-link:hover .tool-arrow {
+        transform: translateX(5px);
+    }
+
+    @media (max-width: 768px) {
+        .steps-container, .features-container, .links-grid {
             grid-template-columns: 1fr;
         }
 
         .seo-content h2 {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
+        }
+
+        .strategy-box {
+            padding: 2rem 1.5rem;
+        }
+
+        .answer-preview h2 {
+            font-size: 1.8rem;
+        }
+        
+        .word-tile-hidden {
+            width: 45px;
+            height: 45px;
+            font-size: 1.5rem;
         }
     }
 </style>

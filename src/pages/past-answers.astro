@@ -35,12 +35,8 @@ function calculateDifficulty(word: string) {
 
     score = Math.min(10, Math.max(1, score));
 
-    if (score >= 7) {
-        return { label: "Hard", class: "hard" };
-    }
-    if (score <= 4) {
-        return { label: "Easy", class: "easy" };
-    }
+    if (score >= 7) return { label: "Hard", class: "hard" };
+    if (score <= 4) return { label: "Easy", class: "easy" };
     return { label: "Medium", class: "medium" };
 }
 
@@ -112,84 +108,86 @@ const schema = {
     <!-- is:inline added for SEO bots -->
     <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
 
-    <main class="archive-container">
+    <main class="archive-container fade-in-up">
         <section class="hero">
             <h1>Wordle Past Answers Archive</h1>
             <p>
-                Explore the last 365 Wordle answers with puzzle numbers, dates, difficulty ratings, and detailed word analysis.
-                Find previous solutions organized month by month.
+                Explore the last 365 Wordle answers with puzzle numbers, dates, difficulty ratings, and detailed word analysis. Expand a month below to view its daily solutions.
             </p>
-            <div class="stats">
-                <div>
-                    <strong>{stats.total}</strong>
-                    <span>Puzzles</span>
+            
+            <!-- Premium Dashboard UI -->
+            <div class="stats-dashboard">
+                <div class="stat-card">
+                    <span class="stat-icon">📚</span>
+                    <strong class="total-text">{stats.total}</strong>
+                    <span>Total Puzzles</span>
                 </div>
-                <div>
+                <div class="stat-card">
+                    <span class="stat-icon" style="background:#e8f5e9; color:#6aaa64;">🎯</span>
                     <strong class="easy-text">{stats.easy}</strong>
-                    <span>Easy</span>
+                    <span>Easy Words</span>
                 </div>
-                <div>
+                <div class="stat-card">
+                    <span class="stat-icon" style="background:#fff8e1; color:#c9b458;">⚖️</span>
                     <strong class="medium-text">{stats.medium}</strong>
-                    <span>Medium</span>
+                    <span>Medium Words</span>
                 </div>
-                <div>
+                <div class="stat-card">
+                    <span class="stat-icon" style="background:#ffebee; color:#d9534f;">🔥</span>
                     <strong class="hard-text">{stats.hard}</strong>
-                    <span>Hard</span>
+                    <span>Hard Words</span>
                 </div>
             </div>
         </section>
 
-        <section class="intro">
-            <h2>About This Wordle Answer Archive</h2>
-            <p>
-                This Wordle archive helps players find previous answers quickly.
-                Each puzzle includes the official solution, puzzle number, date,
-                difficulty estimate, and letter breakdown.
-                Use this page to review past puzzles, improve your strategy,
-                and explore Wordle patterns over time.
-            </p>
-        </section>
-
-        <section class="months">
-            {Object.entries(groupedMonths).map(([month, items]) => (
-                <div class="month-block">
-                    <h2>{month} Wordle Answers</h2>
-                    <div class="cards">
+        <section class="months-interactive">
+            {Object.entries(groupedMonths).map(([month, items], index) => (
+                <details class="month-accordion" open={index === 0 ? true : undefined}>
+                    <summary class="month-header">
+                        <h2>{month}</h2>
+                        <div class="header-meta">
+                            <span class="puzzle-count">{(items ?? []).length} Puzzles</span>
+                            <span class="toggle-icon">+</span>
+                        </div>
+                    </summary>
+                    <div class="cards-grid">
                         {(items ?? []).map((item) => (
-                            <article class="card">
-                                <div class="top">
+                            <a href={item.link} class="puzzle-card">
+                                <div class="card-top">
                                     <span class="number">#{item.puzzleNumber}</span>
-                                    <span class={`difficulty ${item.difficultyClass}`}>{item.difficulty}</span>
+                                    <span class={`difficulty-badge ${item.difficultyClass}`}>{item.difficulty}</span>
                                 </div>
-                                <h3>{item.answer}</h3>
-                                <div class="details">
-                                    <p>📅 {item.date}</p>
-                                    <p>🔤 {item.vowels} vowels • {item.consonants} consonants</p>
-                                    <p>▶ Starts {item.startingLetter} • Ends {item.endingLetter}</p>
-                                    <p>{item.repeat ? "🔁 Repeating letters" : "✓ Unique letters"}</p>
+                                <h3 class="answer-text">{item.answer}</h3>
+                                <div class="card-details">
+                                    <p class="date-row">📅 {item.date}</p>
+                                    <div class="tags-row">
+                                        <span class="tag">🔤 {item.vowels} Vowels</span>
+                                        <span class="tag">{item.repeat ? "🔁 Repeated" : "✓ Unique"}</span>
+                                    </div>
                                 </div>
-                                <a href={item.link}>View Full Analysis →</a>
-                            </article>
+                            </a>
                         ))}
                     </div>
-                </div>
+                </details>
             ))}
         </section>
 
         <section class="archive-help">
-            <h2>How To Use The Wordle Archive</h2>
-            <div class="help-grid">
-                <div>
-                    <h3>Check Previous Answers</h3>
-                    <p>Find any recent Wordle solution by date or puzzle number.</p>
-                </div>
-                <div>
-                    <h3>Study Word Patterns</h3>
-                    <p>Analyze common letters, vowels and repeated patterns.</p>
-                </div>
-                <div>
-                    <h3>Improve Future Guesses</h3>
-                    <p>Learn from previous solutions and build stronger starting strategies.</p>
+            <div class="help-content">
+                <h2>How To Use The Wordle Archive</h2>
+                <div class="help-grid">
+                    <div class="help-card">
+                        <h3>🔍 Check Previous Answers</h3>
+                        <p>Find any recent Wordle solution by date or puzzle number instantly.</p>
+                    </div>
+                    <div class="help-card">
+                        <h3>📊 Study Word Patterns</h3>
+                        <p>Analyze common letters, vowels and repeated patterns for future games.</p>
+                    </div>
+                    <div class="help-card">
+                        <h3>🏆 Improve Future Guesses</h3>
+                        <p>Learn from previous solutions to build statistically stronger starting words.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -199,45 +197,220 @@ const schema = {
 </Layout>
 
 <style>
-    .archive-container { max-width: 1100px; margin: auto; padding: 2rem 1rem; }
-    .hero { text-align: center; padding: 3rem 0; }
-    .hero h1 { font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; }
-    .hero p { max-width: 700px; margin: 1rem auto; color: #666; line-height: 1.7; }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease-out forwards;
+    }
+
+    .archive-container { 
+        max-width: 1100px; 
+        margin: auto; 
+        padding: 2rem 1rem; 
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .hero { text-align: center; padding: 2rem 0 3rem; }
+    .hero h1 { font-family: 'Georgia', serif; font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 900; color: #1a1a1b; margin-bottom: 1rem; }
+    .hero p { max-width: 700px; margin: 0 auto 2.5rem; color: #555; line-height: 1.8; font-size: 1.1rem; }
     
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2rem; }
-    .stats div { border: 1px solid #ddd; padding: 1.5rem; border-radius: 18px; background: white; }
-    .stats strong { display: block; font-size: 2rem; }
-    .stats span { color: #666; }
+    /* Premium Dashboard Stats */
+    .stats-dashboard { 
+        display: grid; 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 1.5rem; 
+    }
+
+    .stat-card { 
+        background: #ffffff;
+        border: 1px solid #eaeced; 
+        padding: 2rem 1.5rem; 
+        border-radius: 20px; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f3f3;
+        border-radius: 12px;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
     
+    .stat-card strong { font-size: 2.5rem; font-family: 'Georgia', serif; line-height: 1; margin-bottom: 0.5rem; }
+    .stat-card span:last-child { color: #666; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .total-text { color: #1a1a1b; }
     .easy-text { color: #6aaa64; }
     .medium-text { color: #c9b458; }
     .hard-text { color: #d9534f; }
     
-    .intro { margin: 3rem 0; line-height: 1.8; }
-    .intro h2, .month-block h2, .archive-help h2 { font-family: Georgia, serif; font-size: 2rem; font-weight: 900; margin-bottom: 1rem; }
-    .month-block { margin: 4rem 0; }
+    /* Interactive Month Accordions */
+    .months-interactive { margin: 4rem 0; }
     
-    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-    .card { border: 1px solid #ddd; border-radius: 18px; padding: 1.4rem; background: white; transition: 0.25s; }
-    .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); }
+    .month-accordion {
+        background: #ffffff;
+        border: 1px solid #eaeced;
+        border-radius: 20px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .month-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem 2rem;
+        background: #fdfdfd;
+        cursor: pointer;
+        list-style: none;
+        transition: background 0.2s ease;
+    }
+
+    .month-header:hover {
+        background: #f7f9fa;
+    }
+
+    .month-header::-webkit-details-marker {
+        display: none;
+    }
+
+    .month-header h2 {
+        font-family: 'Georgia', serif;
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: #1a1a1b;
+        margin: 0;
+    }
+
+    .header-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .puzzle-count {
+        background: #e3e6e8;
+        color: #444;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .toggle-icon {
+        font-size: 2rem;
+        color: #888;
+        font-weight: 300;
+        transition: transform 0.3s ease;
+    }
+
+    details[open] .toggle-icon {
+        transform: rotate(45deg);
+        color: #1a1a1b;
+    }
+
+    details[open] .cards-grid {
+        animation: sweepIn 0.4s ease-out forwards;
+    }
+
+    @keyframes sweepIn {
+        0% { opacity: 0; transform: translateY(-10px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
     
-    .top { display: flex; justify-content: space-between; }
-    .number { font-weight: 900; }
-    .difficulty { padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: 800; }
+    .cards-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+        gap: 1.5rem; 
+        padding: 2rem;
+        border-top: 1px solid #eaeced;
+        background: #fbfbfc;
+    }
+    
+    /* Interactive Puzzle Card */
+    .puzzle-card { 
+        display: block;
+        border: 1px solid #eaeced; 
+        border-radius: 16px; 
+        padding: 1.5rem; 
+        background: white; 
+        text-decoration: none;
+        transition: all 0.25s ease; 
+    }
+    
+    .puzzle-card:hover { 
+        transform: translateY(-4px) scale(1.01); 
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06); 
+        border-color: #c9b458;
+    }
+    
+    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .number { font-weight: 900; color: #888; font-size: 0.9rem; letter-spacing: 0.05em; }
+    .difficulty-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
     
     .easy { background: #e8f5e9; color: #388e3c; }
     .medium { background: #fff8e1; color: #b28704; }
     .hard { background: #ffebee; color: #c62828; }
     
-    .card h3 { font-size: 2rem; letter-spacing: 0.2rem; margin: 1rem 0; }
-    .details { font-size: 0.9rem; color: #666; line-height: 1.7; }
-    .card a { display: block; margin-top: 1rem; font-weight: 800; color: #1a1a1b; }
-    
-    .help-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-    .help-grid div { padding: 1.5rem; border-radius: 18px; border: 1px solid #ddd; }
-
-    @media (max-width: 800px) {
-        .stats { grid-template-columns: repeat(2, 1fr); }
-        .cards, .help-grid { grid-template-columns: 1fr; }
+    .answer-text { 
+        font-family: 'Georgia', serif;
+        font-size: 2.2rem; 
+        letter-spacing: 0.15rem; 
+        margin: 0 0 1rem; 
+        color: #1a1a1b;
     }
-</style>
+    
+    .card-details { border-top: 1px solid #eee; padding-top: 1rem; }
+    .date-row { font-size: 0.9rem; color: #666; margin-bottom: 0.8rem; font-weight: 600; }
+    
+    .tags-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .tag { background: #f3f3f3; color: #555; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; }
+    
+    /* Help Section */
+    .archive-help {
+        background: #1a1a1b;
+        border-radius: 24px;
+        padding: 4rem 3rem;
+        color: white;
+        margin: 5rem 0;
+    }
+
+    .archive-help h2 { font-family: 'Georgia', serif; font-size: 2.5rem; font-weight: 900; margin-bottom: 2.5rem; text-align: center; }
+    
+    .help-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+    .help-card { padding: 2rem; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+    .help-card h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem; color: #fff; }
+    .help-card p { color: #a0a5aa; line-height: 1.7; margin: 0; }
+
+    @media (max-width: 900px) {
+        .stats-dashboard { grid-template-columns: repeat(2, 1fr); }
+        .help-grid { grid-template-columns: 1fr; }
+        .archive-help { padding: 3rem 1.5rem; }
+    }
+
+    @media (max-width: 600px) {
+        .stats-dashboard { grid-template-columns: 1fr; }
+        .month-header { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.5rem; }
+        .header-meta { width: 100%; justify-content: space-between; }
+        .cards-grid { grid-template-columns: 1fr; padding: 1.5rem; }
+        .hero h1 { font-size: 2.5rem; }
+    }
+</style>     

@@ -78,6 +78,45 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
                 </p>
             </div>
 
+            <!-- SEO ADDITION: COMPETITOR COMPARISON TABLE -->
+            <div class="competitor-table-box">
+                <h2>Wordle Hint Today vs Mashable, Forbes & NYT</h2>
+                <p>Many players search for hints on massive news sites, but a dedicated tool offers a much better experience. Here is how we compare:</p>
+                <div class="comp-table-wrapper">
+                    <table class="comp-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Wordle Hint Today</th>
+                                <th>Mashable / Forbes / NYT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Spoiler-Free</strong></td>
+                                <td><span class="check">✓ Interactive Hide/Reveal</span></td>
+                                <td><span class="cross">✗ Answer is often visible in text</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>First Letter Clue</strong></td>
+                                <td><span class="check">✓ Yes</span></td>
+                                <td><span class="check">✓ Yes</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Difficulty Rating</strong></td>
+                                <td><span class="check">✓ Custom Algorithm</span></td>
+                                <td><span class="cross">✗ Rare</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Past Archives</strong></td>
+                                <td><span class="check">✓ 2000+ Puzzles Database</span></td>
+                                <td><span class="cross">✗ Limited to recent articles</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <h2>How Does Our Wordle Hint System Work?</h2>
             <div class="steps-container">
                 <div class="step-card">
@@ -129,6 +168,11 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
             <section class="links-section">
                 <h2>Explore More Wordle Tools</h2>
                 <div class="links-grid">
+                    <!-- SEO ADDITION: DIFFICULTY PAGE LINK -->
+                    <a href="/today-wordle-difficulty" class="tool-link">
+                        <span class="tool-title">Today's Difficulty Score</span>
+                        <span class="tool-arrow">→</span>
+                    </a>
                     <a href="/wordle-solver" class="tool-link">
                         <span class="tool-title">Wordle Solver</span>
                         <span class="tool-arrow">→</span>
@@ -204,6 +248,18 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
         color: #444;
         margin-bottom: 1.5rem;
     }
+
+    /* Competitor Table Styles (SEO Goldmine) */
+    .competitor-table-box { background: white; border: 1px solid #eaeced; border-radius: 20px; padding: 2.5rem; margin: 3rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+    .competitor-table-box h2 { margin-top: 0; font-size: 1.8rem; }
+    .comp-table-wrapper { overflow-x: auto; margin-top: 1.5rem; }
+    .comp-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .comp-table th { background: #fbfbfc; padding: 1rem; font-weight: 900; color: #1a1a1b; border-bottom: 2px solid #e3e6e8; }
+    .comp-table td { padding: 1rem; border-bottom: 1px solid #eaeced; color: #555; font-size: 0.95rem; }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table strong { color: #1a1a1b; }
+    .check { color: #6aaa64; font-weight: 700; }
+    .cross { color: #d9534f; font-weight: 700; }
 
     /* Step Cards */
     .steps-container, .features-container {
@@ -345,7 +401,7 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
             font-size: 1.8rem;
         }
 
-        .strategy-box {
+        .strategy-box, .competitor-table-box {
             padding: 2rem 1.5rem;
         }
     }

@@ -18,35 +18,47 @@ const {
 
 <section class="hint-section">
     <div class="section-header">
-        <h2>Today's Wordle Hints</h2>
-        <p>Use these progressive clues to solve today's puzzle without spoilers.</p>
+        <h2>Today's Wordle Clues & Help</h2>
+        <p>Tap on any card below to safely reveal the specific clue you need.</p>
     </div>
 
     <div class="hint-grid">
         <!-- VOWELS -->
-        <div class="hint-card hover-lift">
+        <div class="hint-card interactive-clue">
+            <div class="clue-overlay" onclick="this.classList.add('hidden-overlay')">
+                <span>🔍 Tap to Reveal</span>
+                <p>Vowel Count</p>
+            </div>
             <div class="icon-wrapper yellow-bg">
                 <span class="modern-icon">V</span>
             </div>
             <div class="hint-content">
-                <h3>Vowels</h3>
+                <h3>Vowel Clue</h3>
                 <p>The answer contains <strong>{vowels}</strong> vowel{vowels !== 1 ? 's' : ''}.</p>
             </div>
         </div>
 
-        <!-- START -->
-        <div class="hint-card hover-lift">
+        <!-- FIRST LETTER (SEO Optimized from "Starting Letter") -->
+        <div class="hint-card interactive-clue">
+            <div class="clue-overlay" onclick="this.classList.add('hidden-overlay')">
+                <span>🔍 Tap to Reveal</span>
+                <p>First Letter Help</p>
+            </div>
             <div class="icon-wrapper green-bg">
-                <span class="modern-icon">S</span>
+                <span class="modern-icon">F</span>
             </div>
             <div class="hint-content">
-                <h3>Starting Letter</h3>
+                <h3>First Letter Hint</h3>
                 <p>The word starts with <strong>{startingLetter}</strong>.</p>
             </div>
         </div>
 
-        <!-- END -->
-        <div class="hint-card hover-lift">
+        <!-- ENDING LETTER -->
+        <div class="hint-card interactive-clue">
+            <div class="clue-overlay" onclick="this.classList.add('hidden-overlay')">
+                <span>🔍 Tap to Reveal</span>
+                <p>Ending Letter</p>
+            </div>
             <div class="icon-wrapper gray-bg">
                 <span class="modern-icon">E</span>
             </div>
@@ -57,7 +69,11 @@ const {
         </div>
 
         <!-- PATTERN -->
-        <div class="hint-card hover-lift">
+        <div class="hint-card interactive-clue">
+            <div class="clue-overlay" onclick="this.classList.add('hidden-overlay')">
+                <span>🔍 Tap to Reveal</span>
+                <p>Word Pattern</p>
+            </div>
             <div class="icon-wrapper dark-bg">
                 <span class="modern-icon">?</span>
             </div>
@@ -70,33 +86,13 @@ const {
 </section>
 
 <style>
-    .hint-section {
-        margin: 4rem auto;
-    }
+    .hint-section { margin: 4rem auto; }
+    
+    .section-header { text-align: center; margin-bottom: 3rem; }
+    .section-header h2 { font-family: 'Georgia', serif; font-size: 2.4rem; font-weight: 900; color: #1a1a1b; margin-bottom: 0.8rem; }
+    .section-header p { color: #555; font-size: 1.1rem; }
 
-    .section-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .section-header h2 {
-        font-family: 'Georgia', serif;
-        font-size: 2.4rem;
-        font-weight: 900;
-        color: #1a1a1b;
-        margin-bottom: 0.8rem;
-    }
-
-    .section-header p {
-        color: #555;
-        font-size: 1.1rem;
-    }
-
-    .hint-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1.5rem;
-    }
+    .hint-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
 
     .hint-card {
         background: #ffffff;
@@ -107,70 +103,56 @@ const {
         flex-direction: column;
         align-items: center;
         text-align: center;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
     }
 
-    .hover-lift:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
-        border-color: #d3d6da;
-    }
-
-    /* Modern Soft Icons */
-    .icon-wrapper {
-        width: 56px;
-        height: 56px;
+    /* Interactive Overlay Style */
+    .clue-overlay {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(4px);
         display: flex;
-        align-items: center;
+        flex-direction: column;
         justify-content: center;
-        border-radius: 50%; /* Made circles instead of squares */
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        align-items: center;
+        z-index: 10;
+        cursor: pointer;
+        transition: opacity 0.3s ease, visibility 0.3s;
     }
 
-    .modern-icon {
-        font-size: 1.4rem;
-        font-weight: 900;
+    .clue-overlay span {
+        background: #1a1a1b;
         color: white;
-        font-family: 'Open Sans', sans-serif;
+        padding: 0.6rem 1.2rem;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 0.95rem;
+        margin-bottom: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
     }
+
+    .clue-overlay:hover span { transform: scale(1.05); background: #6aaa64; }
+    .clue-overlay p { color: #666; font-weight: 700; font-size: 0.9rem; margin: 0; }
+    
+    /* Hide class triggered by JS */
+    .hidden-overlay { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .icon-wrapper { width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 1.5rem; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .modern-icon { font-size: 1.4rem; font-weight: 900; color: white; font-family: 'Open Sans', sans-serif; }
 
     .yellow-bg { background: linear-gradient(135deg, #d8c368, #c9b458); }
     .green-bg { background: linear-gradient(135deg, #78bc72, #6aaa64); }
     .gray-bg { background: linear-gradient(135deg, #8a8e91, #787c7e); }
     .dark-bg { background: linear-gradient(135deg, #333, #1a1a1b); }
 
-    .hint-content h3 {
-        font-family: 'Open Sans', sans-serif;
-        font-size: 1.15rem;
-        font-weight: 800;
-        margin: 0 0 0.8rem;
-        color: #1a1a1b;
-        letter-spacing: -0.02em;
-    }
+    .hint-content h3 { font-family: 'Open Sans', sans-serif; font-size: 1.15rem; font-weight: 800; margin: 0 0 0.8rem; color: #1a1a1b; }
+    .hint-content p { color: #666; line-height: 1.6; font-size: 0.95rem; margin: 0; }
+    .hint-content strong { font-size: 1.15rem; color: #1a1a1b; background: #f3f4f6; padding: 0.1rem 0.5rem; border-radius: 6px; }
 
-    .hint-content p {
-        color: #666;
-        line-height: 1.6;
-        font-size: 0.95rem;
-        margin: 0;
-    }
-
-    .hint-content strong {
-        font-size: 1.15rem;
-        color: #1a1a1b;
-        background: #f3f4f6;
-        padding: 0.1rem 0.5rem;
-        border-radius: 6px;
-    }
-
-    @media (max-width: 900px) {
-        .hint-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-
-    @media (max-width: 500px) {
-        .hint-grid { grid-template-columns: 1fr; }
-        .section-header h2 { font-size: 2rem; }
-    }
+    @media (max-width: 900px) { .hint-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .hint-grid { grid-template-columns: 1fr; } .section-header h2 { font-size: 2rem; } }
 </style>

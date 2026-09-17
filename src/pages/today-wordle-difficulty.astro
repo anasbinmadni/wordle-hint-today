@@ -1,0 +1,152 @@
+---
+import Layout from "../layouts/Layout.astro";
+import SEO from "../components/SEO.astro";
+import AnswerReveal from "../components/AnswerReveal.astro";
+import FAQ from "../components/FAQ.astro";
+import { getCachedWordle } from "../lib/cache";
+
+export const prerender = false;
+
+// STRICT EST TIMEZONE FIX
+const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+const today = new Date(estTimeString);
+
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const day = String(today.getDate()).padStart(2, "0");
+const apiDate = `${year}-${month}-${day}`;
+
+const displayDate = today.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+
+let answer = "SLATE";
+let puzzleNumber = 0;
+
+try {
+    const data = await getCachedWordle(apiDate);
+    if (data) {
+        answer = data.solution.toUpperCase();
+        puzzleNumber = data.days_since_launch;
+    }
+} catch (error) {
+    console.error(error);
+}
+
+// Difficulty Calculation Logic
+const letters = answer.toLowerCase().split("");
+const vowels = letters.filter(l => ["a", "e", "i", "o", "u"].includes(l)).length;
+const rare = letters.filter(l => ["q", "z", "j", "x", "v", "k", "w"].includes(l)).length;
+const repeat = new Set(letters).size !== 5;
+
+let score = 4;
+if (repeat) score += 2;
+score += rare;
+if (vowels <= 1) score += 1;
+if (vowels >= 3) score -= 1;
+score = Math.min(10, Math.max(1, score)); // Keep between 1-10
+
+let difficultyLabel = "Medium";
+let diffColor = "#c9b458"; // Yellow
+if (score >= 7) { difficultyLabel = "Hard"; diffColor = "#d9534f"; }
+if (score <= 4) { difficultyLabel = "Easy"; diffColor = "#6aaa64"; }
+
+const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": `Wordle Difficulty Today - Puzzle #${puzzleNumber}`,
+    "description": `Find out if today's Wordle is hard. Analyze the difficulty score, letter uniqueness, and patterns for puzzle #${puzzleNumber}.`,
+    "url": "https://wordlehinttoday.online/today-wordle-difficulty"
+};
+---
+
+<Layout
+    title={`Wordle Difficulty Today (${displayDate}) - Is it Hard?`}
+    description={`Was today's Wordle hard? Check the difficulty score, letter analysis, and answer for puzzle #${puzzleNumber}.`}
+>
+    <SEO
+        title={`Wordle Difficulty Today - Puzzle #${puzzleNumber}`}
+        description={`Analyze today's Wordle difficulty. Find out if the puzzle is easy, medium, or hard based on vowels and repeated letters.`}
+        canonical="/today-wordle-difficulty"
+    />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+    <main class="page fade-in-up">
+        <header class="hero">
+            <h1>Wordle Difficulty Today</h1>
+            <p>Puzzle #{puzzleNumber} &bull; {displayDate}</p>
+        </header>
+
+        <section class="difficulty-card">
+            <h2>Was Today's Wordle Hard?</h2>
+            
+            <div class="meter-container">
+                <div class="score-circle" style={`border-color: ${diffColor}; color: ${diffColor};`}>
+                    {score}/10
+                </div>
+                <h3 style={`color: ${diffColor};`}>{difficultyLabel} Difficulty</h3>
+                <p>Based on our algorithm, today's puzzle is considered <strong>{difficultyLabel.toLowerCase()}</strong> to solve.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <strong>{vowels}</strong>
+                    <span>Vowels</span>
+                </div>
+                <div class="stat-box">
+                    <strong>{rare}</strong>
+                    <span>Rare Letters</span>
+                </div>
+                <div class="stat-box">
+                    <strong>{repeat ? "Yes" : "No"}</strong>
+                    <span>Repeated Letters</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-card">
+            <h2>Why Does Difficulty Matter?</h2>
+            <p>
+                Not all Wordle puzzles are created equal. Some days the answer is a common household word with lots of vowels (Easy), while other days it might be an obscure word with repeating rare consonants (Hard). 
+                Knowing the difficulty helps you adjust your strategy and choose better starting words.
+            </p>
+        </section>
+
+        <!-- Provide Answer on the same page -->
+        <AnswerReveal answer={answer} puzzleNumber={puzzleNumber} />
+
+        <FAQ />
+    </main>
+</Layout>
+
+<style>
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+    
+    .page { max-width: 900px; margin: auto; padding: 3rem 1rem; font-family: 'Open Sans', sans-serif; }
+    
+    .hero { text-align: center; margin-bottom: 3rem; }
+    .hero h1 { font-family: 'Georgia', serif; font-size: clamp(2.5rem, 5vw, 3.5rem); font-weight: 900; color: #1a1a1b; margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.2rem; color: #666; font-weight: 700; }
+    
+    .difficulty-card { background: white; border: 1px solid #d3d6da; border-radius: 24px; padding: 3rem 2rem; text-align: center; margin-bottom: 3rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+    .difficulty-card h2 { font-family: 'Georgia', serif; font-size: 2rem; font-weight: 900; margin-bottom: 2rem; }
+    
+    .meter-container { margin-bottom: 3rem; }
+    .score-circle { width: 120px; height: 120px; margin: 0 auto 1.5rem; border: 8px solid; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 900; font-family: 'Georgia', serif; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .meter-container h3 { font-size: 1.8rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .meter-container p { color: #555; font-size: 1.1rem; }
+    
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; border-top: 1px solid #eee; padding-top: 2rem; }
+    .stat-box { background: #fbfbfc; border: 1px solid #eaeced; padding: 1.5rem; border-radius: 16px; display: flex; flex-direction: column; align-items: center; }
+    .stat-box strong { font-size: 2rem; font-weight: 900; color: #1a1a1b; font-family: 'Georgia', serif; }
+    .stat-box span { color: #666; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; margin-top: 0.5rem; }
+
+    .content-card { background: #fdfbf7; border: 1px solid #e8e2d5; border-radius: 20px; padding: 2.5rem; margin-bottom: 3rem; }
+    .content-card h2 { font-family: 'Georgia', serif; font-size: 1.8rem; font-weight: 900; margin-bottom: 1rem; color: #1a1a1b; }
+    .content-card p { line-height: 1.8; color: #444; font-size: 1.05rem; }
+
+    @media (max-width: 600px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .score-circle { width: 100px; height: 100px; font-size: 2rem; }
+    }
+</style>

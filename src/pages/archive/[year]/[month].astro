@@ -1,0 +1,177 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import SEO from "../../../components/SEO.astro";
+import { getCachedWordle } from "../../../lib/cache";
+
+export const prerender = false;
+
+const { year, month } = Astro.params;
+
+if (!year || !month) {
+    return Astro.redirect("/past-answers");
+}
+
+const numYear = parseInt(year);
+const numMonth = parseInt(month);
+
+// Validate Year & Month (Wordle started June 2021)
+if (numYear < 2021 || numMonth < 1 || numMonth > 12 || (numYear === 2021 && numMonth < 6)) {
+    return Astro.redirect("/past-answers");
+}
+
+const monthName = new Date(numYear, numMonth - 1, 1).toLocaleDateString("en-US", { month: "long" });
+
+// Calculate days in this month to fetch
+const daysInMonth = new Date(numYear, numMonth, 0).getDate();
+
+// STRICT EST TIMEZONE FIX (Don't show future dates)
+const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+const today = new Date(estTimeString);
+const isCurrentMonth = (numYear === today.getFullYear() && numMonth === today.getMonth() + 1);
+const limitDay = isCurrentMonth ? today.getDate() : daysInMonth;
+
+const puzzles = [];
+
+// Fetch data for the specific month
+for (let d = 1; d <= limitDay; d++) {
+    const dayStr = String(d).padStart(2, "0");
+    const apiDate = `${year}-${month}-${dayStr}`;
+
+    try {
+        const data = await getCachedWordle(apiDate);
+        if (data && data.solution) {
+            const answer = data.solution.toUpperCase();
+            
+            // Difficulty Math
+            const letters = answer.toLowerCase().split("");
+            const vowels = letters.filter(l => ["a", "e", "i", "o", "u"].includes(l)).length;
+            const repeat = new Set(letters).size !== 5;
+            let score = 4;
+            if (repeat) score += 2;
+            if (vowels <= 1) score += 1;
+            if (vowels >= 3) score -= 1;
+            
+            let difficulty = "Medium";
+            let diffClass = "medium";
+            if (score >= 7) { difficulty = "Hard"; diffClass = "hard"; }
+            if (score <= 4) { difficulty = "Easy"; diffClass = "easy"; }
+
+            puzzles.push({
+                day: dayStr,
+                dateDisplay: `${monthName} ${d}, ${year}`,
+                answer: answer,
+                puzzleNumber: data.days_since_launch,
+                difficulty: difficulty,
+                diffClass: diffClass,
+                link: `/wordle-hint-${data.days_since_launch}-${year}-${month}-${dayStr}`
+            });
+        }
+    } catch (error) {
+        // Skip missing days silently
+    }
+}
+
+// Reverse so newest is on top
+puzzles.reverse();
+
+const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": `Wordle Answers for ${monthName} ${year}`,
+    "description": `Archive of all Wordle solutions for ${monthName} ${year}. Includes puzzle numbers, difficulty levels, and hints.`,
+    "url": `https://wordlehinttoday.online/archive/${year}/${month}`
+};
+---
+
+<Layout
+    title={`Wordle Answers ${monthName} ${year} - Archive`}
+    description={`Browse all Wordle answers and solutions for ${monthName} ${year}. Complete list of puzzles with difficulty ratings and hints.`}
+>
+    <SEO
+        title={`Wordle Answers ${monthName} ${year} - Archive`}
+        description={`Browse all Wordle answers and solutions for ${monthName} ${year}. Complete list of puzzles with difficulty ratings and hints.`}
+        canonical={`/archive/${year}/${month}`}
+    />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+    <main class="month-archive fade-in-up">
+        <nav class="breadcrumb">
+            <a href="/">Home</a>
+            <span>/</span>
+            <a href="/past-answers">Past Answers</a>
+            <span>/</span>
+            <strong>{monthName} {year}</strong>
+        </nav>
+
+        <header class="hero">
+            <h1>Wordle Answers for {monthName} {year}</h1>
+            <p>
+                Found {puzzles.length} puzzles for this month. Select any puzzle to view detailed hints, word analysis, and the final solution.
+            </p>
+        </header>
+
+        <div class="cards-grid">
+            {puzzles.map((item) => (
+                <a href={item.link} class="puzzle-card">
+                    <div class="card-top">
+                        <span class="number">#{item.puzzleNumber}</span>
+                        <span class={`difficulty-badge ${item.diffClass}`}>{item.difficulty}</span>
+                    </div>
+                    <h3 class="answer-text">{item.answer}</h3>
+                    <div class="card-details">
+                        <p class="date-row">📅 {item.dateDisplay}</p>
+                    </div>
+                </a>
+            ))}
+            
+            {puzzles.length === 0 && (
+                <div class="no-data">
+                    <p>No puzzle data found for this month yet.</p>
+                </div>
+            )}
+        </div>
+    </main>
+</Layout>
+
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+    
+    .month-archive { max-width: 1000px; margin: auto; padding: 2rem 1rem 5rem; font-family: 'Open Sans', sans-serif; }
+    
+    .breadcrumb { display: flex; gap: 0.5rem; font-size: 0.9rem; color: #666; margin-bottom: 2rem; flex-wrap: wrap; }
+    .breadcrumb a { color: #1a1a1b; font-weight: 700; text-decoration: none; }
+    .breadcrumb a:hover { color: #6aaa64; text-decoration: underline; }
+
+    .hero { text-align: center; margin-bottom: 3rem; }
+    .hero h1 { font-family: 'Georgia', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; color: #1a1a1b; margin-bottom: 1rem; }
+    .hero p { color: #666; font-size: 1.1rem; }
+
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    
+    .puzzle-card { display: block; border: 1px solid #eaeced; border-radius: 16px; padding: 1.5rem; background: white; text-decoration: none; transition: all 0.25s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+    .puzzle-card:hover { transform: translateY(-4px) scale(1.01); box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06); border-color: #c9b458; }
+    
+    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .number { font-weight: 900; color: #888; font-size: 0.9rem; letter-spacing: 0.05em; }
+    .difficulty-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
+    
+    .easy { background: #e8f5e9; color: #388e3c; }
+    .medium { background: #fff8e1; color: #b28704; }
+    .hard { background: #ffebee; color: #c62828; }
+    
+    .answer-text { font-family: 'Georgia', serif; font-size: 2.2rem; letter-spacing: 0.15rem; margin: 0 0 1rem; color: #1a1a1b; }
+    .card-details { border-top: 1px solid #eee; padding-top: 1rem; }
+    .date-row { font-size: 0.95rem; color: #666; font-weight: 600; margin: 0; }
+
+    .no-data { grid-column: 1 / -1; text-align: center; padding: 3rem; background: #f9f9f9; border-radius: 16px; color: #666; }
+
+    @media (max-width: 600px) {
+        .cards-grid { grid-template-columns: 1fr; }
+    }
+</style>

@@ -1,192 +1,103 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import FAQ from "../components/FAQ.astro";
-import { getCachedWordle } from "../lib/cache";
+import SEO from "../components/SEO.astro";
 
 export const prerender = false;
-
-interface ArchiveItem {
-    date: string;
-    month: string;
-    year: number;
-    puzzleNumber: number;
-    answer: string;
-    vowels: number;
-    consonants: number;
-    startingLetter: string;
-    endingLetter: string;
-    repeat: boolean;
-    difficulty: string;
-    difficultyClass: string;
-    link: string;
-}
-
-function calculateDifficulty(word: string) {
-    const letters = word.toLowerCase().split("");
-    const vowels = letters.filter((l: string) => ["a", "e", "i", "o", "u"].includes(l)).length;
-    const rare = letters.filter((l) => ["q", "z", "j", "x", "v", "k", "w"].includes(l)).length;
-    const repeat = new Set(letters).size !== letters.length;
-
-    let score = 4;
-    if (repeat) score += 2;
-    score += rare;
-    if (vowels <= 1) score += 1;
-    if (vowels >= 3) score -= 1;
-
-    score = Math.min(10, Math.max(1, score));
-
-    if (score >= 7) return { label: "Hard", class: "hard" };
-    if (score <= 4) return { label: "Easy", class: "easy" };
-    return { label: "Medium", class: "medium" };
-}
 
 // STRICT EST TIMEZONE FIX
 const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
 const today = new Date(estTimeString);
 
-const archive: ArchiveItem[] = [];
-let stats = { total: 0, easy: 0, medium: 0, hard: 0 };
+const currentYear = today.getFullYear();
+const currentMonth = today.getMonth() + 1;
 
-for (let i = 0; i < 365; i++) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - i);
+// Wordle started in June 2021
+const startYear = 2021;
+const startMonth = 6;
 
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-    const apiDate = `${yyyy}-${mm}-${dd}`;
+const archiveTree = [];
 
-    try {
-        const data = await getCachedWordle(apiDate);
-        if (!data) continue;
+for (let y = currentYear; y >= startYear; y--) {
+    const months = [];
+    const lastMonth = (y === currentYear) ? currentMonth : 12;
+    const firstMonth = (y === startYear) ? startMonth : 1;
 
-        const answer = data.solution.toUpperCase();
-        const letters = answer.toLowerCase().split("");
-        const vowelCount = letters.filter((l: string) => ["a", "e", "i", "o", "u"].includes(l)).length;
-        const difficulty = calculateDifficulty(answer);
-
-        stats.total++;
-        if (difficulty.label === "Easy") stats.easy++;
-        if (difficulty.label === "Medium") stats.medium++;
-        if (difficulty.label === "Hard") stats.hard++;
-
-        archive.push({
-            date: date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
-            month: date.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-            year: yyyy,
-            puzzleNumber: data.days_since_launch,
-            answer,
-            vowels: vowelCount,
-            consonants: 5 - vowelCount,
-            startingLetter: answer.charAt(0),
-            endingLetter: answer.charAt(4),
-            repeat: new Set(letters).size !== letters.length,
-            difficulty: difficulty.label,
-            difficultyClass: difficulty.class,
-            link: `/wordle-hint-${data.days_since_launch}-${yyyy}-${mm}-${dd}`
+    for (let m = lastMonth; m >= firstMonth; m--) {
+        const monthName = new Date(y, m - 1, 1).toLocaleDateString("en-US", { month: "long" });
+        const monthStr = String(m).padStart(2, "0");
+        months.push({
+            name: monthName,
+            url: `/archive/${y}/${monthStr}`
         });
-    } catch (error) {
-        console.error("Archive fetch error", apiDate, error);
     }
+    
+    archiveTree.push({
+        year: y,
+        months: months
+    });
 }
-
-const groupedMonths = Object.groupBy(archive, (item) => item.month);
 
 const schema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": "Wordle Past Answers Archive",
-    "description": "Browse previous Wordle answers with dates, puzzle numbers, difficulty and word analysis.",
+    "name": "Wordle Past Answers Archive Hub",
+    "description": "Browse previous Wordle answers by year and month. Find complete historical data from 2021 to present.",
     "url": "https://wordlehinttoday.online/past-answers"
 };
 ---
 
 <Layout
-    title="Wordle Past Answers Archive - Previous Wordle Solutions by Date"
-    description="Browse 365 previous Wordle answers with puzzle numbers, dates, difficulty levels, vowels, letters analysis and historical puzzle details."
+    title="Wordle Past Answers Archive - Complete History"
+    description="Browse all previous Wordle answers organized by year and month. Find any historical Wordle solution from 2021 to today."
 >
-    <!-- is:inline added for SEO bots -->
+    <SEO
+        title="Wordle Past Answers Archive - Complete History"
+        description="Browse all previous Wordle answers organized by year and month. Find any historical Wordle solution from 2021 to today."
+        canonical="/past-answers"
+    />
+
     <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
 
     <main class="archive-container fade-in-up">
         <section class="hero">
-            <h1>Wordle Past Answers Archive</h1>
+            <h1>Wordle Archive Directory</h1>
             <p>
-                Explore the last 365 Wordle answers with puzzle numbers, dates, difficulty ratings, and detailed word analysis. Expand a month below to view its daily solutions.
+                Explore our complete Wordle database. Select a year and month below to view all daily solutions, difficulty ratings, and word statistics for that period.
             </p>
-            
-            <!-- Premium Dashboard UI -->
-            <div class="stats-dashboard">
-                <div class="stat-card">
-                    <span class="stat-icon">📚</span>
-                    <strong class="total-text">{stats.total}</strong>
-                    <span>Total Puzzles</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon" style="background:#e8f5e9; color:#6aaa64;">🎯</span>
-                    <strong class="easy-text">{stats.easy}</strong>
-                    <span>Easy Words</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon" style="background:#fff8e1; color:#c9b458;">⚖️</span>
-                    <strong class="medium-text">{stats.medium}</strong>
-                    <span>Medium Words</span>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon" style="background:#ffebee; color:#d9534f;">🔥</span>
-                    <strong class="hard-text">{stats.hard}</strong>
-                    <span>Hard Words</span>
-                </div>
-            </div>
         </section>
 
-        <section class="months-interactive">
-            {Object.entries(groupedMonths).map(([month, items], index) => (
-                <details class="month-accordion" open={index === 0 ? true : undefined}>
-                    <summary class="month-header">
-                        <h2>{month}</h2>
-                        <div class="header-meta">
-                            <span class="puzzle-count">{(items ?? []).length} Puzzles</span>
-                            <span class="toggle-icon">+</span>
-                        </div>
-                    </summary>
-                    <div class="cards-grid">
-                        {(items ?? []).map((item) => (
-                            <a href={item.link} class="puzzle-card">
-                                <div class="card-top">
-                                    <span class="number">#{item.puzzleNumber}</span>
-                                    <span class={`difficulty-badge ${item.difficultyClass}`}>{item.difficulty}</span>
-                                </div>
-                                <h3 class="answer-text">{item.answer}</h3>
-                                <div class="card-details">
-                                    <p class="date-row">📅 {item.date}</p>
-                                    <div class="tags-row">
-                                        <span class="tag">🔤 {item.vowels} Vowels</span>
-                                        <span class="tag">{item.repeat ? "🔁 Repeated" : "✓ Unique"}</span>
-                                    </div>
-                                </div>
+        <section class="years-grid">
+            {archiveTree.map((yearData) => (
+                <div class="year-block">
+                    <h2 class="year-heading">{yearData.year} Archive</h2>
+                    <div class="months-grid">
+                        {yearData.months.map((month) => (
+                            <a href={month.url} class="month-card">
+                                <h3>{month.name}</h3>
+                                <span>View Puzzles →</span>
                             </a>
                         ))}
                     </div>
-                </details>
+                </div>
             ))}
         </section>
 
         <section class="archive-help">
             <div class="help-content">
-                <h2>How To Use The Wordle Archive</h2>
+                <h2>Why Use Our Structured Archive?</h2>
                 <div class="help-grid">
                     <div class="help-card">
-                        <h3>🔍 Check Previous Answers</h3>
-                        <p>Find any recent Wordle solution by date or puzzle number instantly.</p>
+                        <h3>⚡ Lightning Fast</h3>
+                        <p>Our organized folders mean you never have to wait for thousands of puzzles to load.</p>
                     </div>
                     <div class="help-card">
-                        <h3>📊 Study Word Patterns</h3>
-                        <p>Analyze common letters, vowels and repeated patterns for future games.</p>
+                        <h3>📊 Complete History</h3>
+                        <p>Access every single Wordle answer ever played since the game launched in June 2021.</p>
                     </div>
                     <div class="help-card">
-                        <h3>🏆 Improve Future Guesses</h3>
-                        <p>Learn from previous solutions to build statistically stronger starting words.</p>
+                        <h3>🏆 Improve Guesses</h3>
+                        <p>Study past months to find seasonal word trends and frequently used letter patterns.</p>
                     </div>
                 </div>
             </div>
@@ -207,7 +118,7 @@ const schema = {
     }
 
     .archive-container { 
-        max-width: 1100px; 
+        max-width: 1000px; 
         margin: auto; 
         padding: 2rem 1rem; 
         font-family: 'Open Sans', sans-serif;
@@ -215,202 +126,37 @@ const schema = {
 
     .hero { text-align: center; padding: 2rem 0 3rem; }
     .hero h1 { font-family: 'Georgia', serif; font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 900; color: #1a1a1b; margin-bottom: 1rem; }
-    .hero p { max-width: 700px; margin: 0 auto 2.5rem; color: #555; line-height: 1.8; font-size: 1.1rem; }
+    .hero p { max-width: 700px; margin: 0 auto; color: #555; line-height: 1.8; font-size: 1.1rem; }
     
-    /* Premium Dashboard Stats */
-    .stats-dashboard { 
-        display: grid; 
-        grid-template-columns: repeat(4, 1fr); 
-        gap: 1.5rem; 
-    }
+    .years-grid { margin: 2rem 0 4rem; display: flex; flex-direction: column; gap: 3rem; }
+    
+    .year-block { background: #ffffff; border: 1px solid #eaeced; border-radius: 24px; padding: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .year-heading { font-family: 'Georgia', serif; font-size: 2rem; font-weight: 900; color: #1a1a1b; border-bottom: 2px solid #f3f4f6; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    
+    .months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+    
+    .month-card { background: #fdfbfc; border: 1px solid #e3e6e8; border-radius: 16px; padding: 1.5rem; text-decoration: none; transition: all 0.25s ease; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .month-card:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-color: #6aaa64; background: #ffffff; }
+    .month-card h3 { font-family: 'Georgia', serif; font-size: 1.3rem; font-weight: 800; color: #1a1a1b; margin-bottom: 0.5rem; }
+    .month-card span { font-size: 0.9rem; font-weight: 700; color: #6aaa64; }
 
-    .stat-card { 
-        background: #ffffff;
-        border: 1px solid #eaeced; 
-        padding: 2rem 1.5rem; 
-        border-radius: 20px; 
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-        transition: transform 0.3s ease;
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.06);
-    }
-
-    .stat-icon {
-        width: 48px;
-        height: 48px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f3f3f3;
-        border-radius: 12px;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .stat-card strong { font-size: 2.5rem; font-family: 'Georgia', serif; line-height: 1; margin-bottom: 0.5rem; }
-    .stat-card span:last-child { color: #666; font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-    
-    .total-text { color: #1a1a1b; }
-    .easy-text { color: #6aaa64; }
-    .medium-text { color: #c9b458; }
-    .hard-text { color: #d9534f; }
-    
-    /* Interactive Month Accordions */
-    .months-interactive { margin: 4rem 0; }
-    
-    .month-accordion {
-        background: #ffffff;
-        border: 1px solid #eaeced;
-        border-radius: 20px;
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-    }
-
-    .month-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem 2rem;
-        background: #fdfdfd;
-        cursor: pointer;
-        list-style: none;
-        transition: background 0.2s ease;
-    }
-
-    .month-header:hover {
-        background: #f7f9fa;
-    }
-
-    .month-header::-webkit-details-marker {
-        display: none;
-    }
-
-    .month-header h2 {
-        font-family: 'Georgia', serif;
-        font-size: 1.8rem;
-        font-weight: 900;
-        color: #1a1a1b;
-        margin: 0;
-    }
-
-    .header-meta {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-    }
-
-    .puzzle-count {
-        background: #e3e6e8;
-        color: #444;
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 700;
-    }
-
-    .toggle-icon {
-        font-size: 2rem;
-        color: #888;
-        font-weight: 300;
-        transition: transform 0.3s ease;
-    }
-
-    details[open] .toggle-icon {
-        transform: rotate(45deg);
-        color: #1a1a1b;
-    }
-
-    details[open] .cards-grid {
-        animation: sweepIn 0.4s ease-out forwards;
-    }
-
-    @keyframes sweepIn {
-        0% { opacity: 0; transform: translateY(-10px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-    
-    .cards-grid { 
-        display: grid; 
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-        gap: 1.5rem; 
-        padding: 2rem;
-        border-top: 1px solid #eaeced;
-        background: #fbfbfc;
-    }
-    
-    /* Interactive Puzzle Card */
-    .puzzle-card { 
-        display: block;
-        border: 1px solid #eaeced; 
-        border-radius: 16px; 
-        padding: 1.5rem; 
-        background: white; 
-        text-decoration: none;
-        transition: all 0.25s ease; 
-    }
-    
-    .puzzle-card:hover { 
-        transform: translateY(-4px) scale(1.01); 
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.06); 
-        border-color: #c9b458;
-    }
-    
-    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .number { font-weight: 900; color: #888; font-size: 0.9rem; letter-spacing: 0.05em; }
-    .difficulty-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
-    
-    .easy { background: #e8f5e9; color: #388e3c; }
-    .medium { background: #fff8e1; color: #b28704; }
-    .hard { background: #ffebee; color: #c62828; }
-    
-    .answer-text { 
-        font-family: 'Georgia', serif;
-        font-size: 2.2rem; 
-        letter-spacing: 0.15rem; 
-        margin: 0 0 1rem; 
-        color: #1a1a1b;
-    }
-    
-    .card-details { border-top: 1px solid #eee; padding-top: 1rem; }
-    .date-row { font-size: 0.9rem; color: #666; margin-bottom: 0.8rem; font-weight: 600; }
-    
-    .tags-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-    .tag { background: #f3f3f3; color: #555; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; }
-    
     /* Help Section */
-    .archive-help {
-        background: #1a1a1b;
-        border-radius: 24px;
-        padding: 4rem 3rem;
-        color: white;
-        margin: 5rem 0;
-    }
-
+    .archive-help { background: #1a1a1b; border-radius: 24px; padding: 4rem 3rem; color: white; margin: 5rem 0; }
     .archive-help h2 { font-family: 'Georgia', serif; font-size: 2.5rem; font-weight: 900; margin-bottom: 2.5rem; text-align: center; }
-    
     .help-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
     .help-card { padding: 2rem; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
     .help-card h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem; color: #fff; }
     .help-card p { color: #a0a5aa; line-height: 1.7; margin: 0; }
 
     @media (max-width: 900px) {
-        .stats-dashboard { grid-template-columns: repeat(2, 1fr); }
+        .months-grid { grid-template-columns: repeat(3, 1fr); }
         .help-grid { grid-template-columns: 1fr; }
         .archive-help { padding: 3rem 1.5rem; }
     }
 
     @media (max-width: 600px) {
-        .stats-dashboard { grid-template-columns: 1fr; }
-        .month-header { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.5rem; }
-        .header-meta { width: 100%; justify-content: space-between; }
-        .cards-grid { grid-template-columns: 1fr; padding: 1.5rem; }
+        .months-grid { grid-template-columns: repeat(2, 1fr); }
+        .year-block { padding: 1.5rem; }
         .hero h1 { font-size: 2.5rem; }
     }
-</style>     
+</style>

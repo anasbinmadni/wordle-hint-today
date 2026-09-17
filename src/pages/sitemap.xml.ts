@@ -5,7 +5,6 @@ const staticPages = [
     "/today-wordle-hint",
     "/today-wordle-answer",
     "/wordle-solver",
-    "/wordle-archive",
     "/past-answers",
     "/about",
     "/privacy-policy",
@@ -29,26 +28,31 @@ export const GET: APIRoute = () => {
         </url>
     `).join("");
 
-    // DYNAMIC DAILY URLS: Generate sitemap links for the past 30 days
-    // STRICT EST TIMEZONE FIX
+    // EST TIMEZONE LOGIC
     const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-    const baseDate = new Date(estTimeString);
+    const endDate = new Date(estTimeString);
+    
+    // Wordle Launch Date
+    const startDate = new Date("2021-06-19T00:00:00-05:00"); 
 
-    for (let i = 0; i <= 30; i++) {
-        const date = new Date(baseDate);
-        date.setDate(baseDate.getDate() - i);
+    // Generate Dynamic URLs (Full 2000+ Pages)
+    let currentDate = new Date(startDate);
+    let puzzleId = 0; // Starts from 0 or 1 depending on NYT API
 
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const day = String(date.getDate()).padStart(2, "0");
+    while (currentDate <= endDate) {
+        const year = currentDate.getFullYear();
+        const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+        const day = String(currentDate.getDate()).padStart(2, "0");
 
         urls += `
         <url>
-            <loc>${domain}/wordle-hint-${1000 - i}-${year}-${month}-${day}</loc>
+            <loc>${domain}/wordle-hint-${puzzleId}-${year}-${month}-${day}</loc>
             <changefreq>never</changefreq>
-            <priority>0.7</priority>
-        </url>
-        `;
+            <priority>0.6</priority>
+        </url>`;
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+        puzzleId++;
     }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>

@@ -8,7 +8,7 @@ import { getCachedWordle } from "../lib/cache";
 
 export const prerender = false;
 
-// STRICT EST TIMEZONE FIX FOR WORDLE NYT API
+// STRICT EST TIMEZONE FIX
 const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
 const today = new Date(estTimeString);
 
@@ -66,20 +66,7 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
             />
         </div>
 
-        <section class="answer-preview interactive-card">
-            <div class="preview-content">
-                <span class="lock-icon">🔒</span>
-                <h2>Today's Wordle Solution Preview</h2>
-                <p>Reveal the answer only when you are absolutely ready.</p>
-                
-                <div class="word-tiles-locked" aria-label="Wordle answer hidden">
-                    {answer.split("").map(() => (
-                        <span class="word-tile-hidden">?</span>
-                    ))}
-                </div>
-            </div>
-        </section>
-
+        <!-- NEW COMBINED PREVIEW & REVEAL COMPONENT -->
         <AnswerReveal answer={answer} puzzleNumber={puzzleNumber} />
 
         <section class="seo-content">
@@ -167,7 +154,6 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
 </Layout>
 
 <style>
-    /* Premium Animations */
     @keyframes fadeInUp {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
@@ -186,65 +172,6 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
 
     .interactive-section {
         margin: 2rem 0;
-    }
-
-    /* Premium Answer Preview Card */
-    .answer-preview {
-        background: linear-gradient(145deg, #ffffff, #f9f9fa);
-        border: 1px solid #e3e6e8;
-        border-radius: 24px;
-        padding: 3rem 2rem;
-        text-align: center;
-        margin: 4rem auto;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .preview-content {
-        position: relative;
-        z-index: 2;
-    }
-
-    .lock-icon {
-        font-size: 2.5rem;
-        display: block;
-        margin-bottom: 1rem;
-    }
-
-    .answer-preview h2 {
-        font-family: 'Georgia', serif;
-        font-size: 2.2rem;
-        font-weight: 900;
-        color: #1a1a1b;
-        margin-bottom: 0.5rem;
-    }
-
-    .answer-preview p {
-        color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 2rem;
-    }
-
-    .word-tiles-locked {
-        display: flex;
-        justify-content: center;
-        gap: 0.6rem;
-    }
-
-    .word-tile-hidden {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 55px;
-        height: 55px;
-        background: #e3e6e8;
-        color: #a0a5aa;
-        font-size: 2rem;
-        font-weight: 900;
-        border-radius: 8px;
-        font-family: 'Georgia', serif;
-        border: 2px dashed #c0c5c9;
     }
 
     /* SEO Content Styling */
@@ -269,6 +196,13 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
         padding: 1.5rem;
         border-left: 4px solid #6aaa64;
         border-radius: 0 12px 12px 0;
+    }
+
+    .seo-content p {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #444;
+        margin-bottom: 1.5rem;
     }
 
     /* Step Cards */
@@ -325,6 +259,7 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
         color: #666;
         line-height: 1.6;
         font-size: 0.95rem;
+        margin: 0;
     }
 
     /* Strategy Box */
@@ -412,16 +347,6 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
 
         .strategy-box {
             padding: 2rem 1.5rem;
-        }
-
-        .answer-preview h2 {
-            font-size: 1.8rem;
-        }
-        
-        .word-tile-hidden {
-            width: 45px;
-            height: 45px;
-            font-size: 1.5rem;
         }
     }
 </style>

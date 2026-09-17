@@ -1,205 +1,218 @@
 ---
-import WordleTiles from "./WordleTiles.astro";
-
-
 interface Props {
-
-	answer:string;
-
-	puzzleNumber:number;
-
+    answer: string;
+    puzzleNumber: number;
 }
 
-
-const {
-	answer,
-	puzzleNumber
-
-} = Astro.props;
-
+const { answer, puzzleNumber } = Astro.props;
+const letters = answer.toUpperCase().split("");
 ---
 
+<section class="unified-reveal-section">
+    <div class="reveal-card">
+        <div class="header">
+            <span class="lock-icon" id="status-icon">🔒</span>
+            <h2>Today's Wordle Solution</h2>
+            <p>Reveal the exact answer for puzzle #{puzzleNumber} only when you are absolutely ready.</p>
+        </div>
 
-<section class="answer-section">
+        <!-- 3D Flipping Tiles Container -->
+        <div class="board-wrapper">
+            <div class="tiles-grid">
+                {letters.map((letter, index) => (
+                    <div class="flip-tile" id={`flip-tile-${index}`}>
+                        <div class="flip-tile-inner">
+                            <div class="flip-tile-front">?</div>
+                            <div class="flip-tile-back">{letter}</div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
 
-
-<div class="answer-card">
-
-
-<div class="header">
-
-
-<h2>
-	Ready to see the answer?
-</h2>
-
-
-<p>
-	Reveal the solution only when you are ready.
-</p>
-
-
-</div>
-
-
-
-<details class="reveal-box">
-
-
-<summary>
-	Reveal Today's Wordle Answer
-</summary>
-
-
-
-<div class="board-wrapper">
-
-<WordleTiles 
-	word={answer}
-	color="green"
-/>
-
-</div>
-
-
-
-
-<div class="solution-text">
-
-Wordle #{puzzleNumber} Answer:
-
-<strong>
-{answer.toUpperCase()}
-</strong>
-
-
-</div>
-
-
-
-</details>
-
-
-</div>
-
-
+        <div class="action-area">
+            <button id="interactive-reveal-btn" class="reveal-btn">
+                Reveal Today's Answer
+            </button>
+            <div id="solution-text" class="hidden-solution-text">
+                The exact solution is: <strong>{answer.toUpperCase()}</strong>
+            </div>
+        </div>
+    </div>
 </section>
 
+<script is:inline define:vars={{ lettersLength: letters.length }}>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById("interactive-reveal-btn");
+        const solutionText = document.getElementById("solution-text");
+        const statusIcon = document.getElementById("status-icon");
 
+        btn?.addEventListener("click", () => {
+            // Hide button and show text
+            btn.style.display = "none";
+            solutionText.classList.add("visible");
+            statusIcon.textContent = "🔓"; // Change icon to unlocked
+
+            // Cascading 3D Flip Animation
+            for (let i = 0; i < lettersLength; i++) {
+                setTimeout(() => {
+                    const tile = document.getElementById(`flip-tile-${i}`);
+                    tile?.classList.add("flipped");
+                }, i * 250); // 250ms delay between each letter flip
+            }
+        });
+    });
+</script>
 
 <style>
-
-
-.answer-section{
-
-	margin:3rem auto;
-
-}
-
-
-
-.answer-card{
-
-background:white;
-
-border:1px solid #d3d6da;
-
-border-radius:22px;
-
-padding:2rem;
-
-text-align:center;
-
-box-shadow:
-0 10px 30px rgba(0,0,0,.05);
-
-}
-
-
-
-.header h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-margin-bottom:.5rem;
-
-}
-
-
-
-.header p{
-
-color:#666;
-
-margin-bottom:2rem;
-
-}
-
-
-
-.reveal-box summary{
-
-
-display:inline-flex;
-
-background:#1a1a1b;
-
-color:white;
-
-padding:1rem 2rem;
-
-border-radius:12px;
-
-font-weight:800;
-
-cursor:pointer;
-
-transition:.25s ease;
-
-}
-
-
-
-.reveal-box summary:hover{
-
-background:#333;
-
-}
-
-
-
-.board-wrapper{
-
-margin-top:2rem;
-
-}
-
-
-
-.solution-text{
-
-margin-top:1.5rem;
-
-color:#555;
-
-font-size:1.1rem;
-
-}
-
-
-
-.solution-text strong{
-
-font-size:1.3rem;
-
-color:#1a1a1b;
-
-}
-
-
-
+    .unified-reveal-section {
+        margin: 4rem auto;
+        max-width: 700px;
+    }
+
+    .reveal-card {
+        background: linear-gradient(145deg, #ffffff, #fdfdfd);
+        border: 1px solid #d3d6da;
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.04);
+        position: relative;
+    }
+
+    .header h2 {
+        font-family: 'Georgia', serif;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: #1a1a1b;
+        margin-bottom: 0.5rem;
+    }
+
+    .header p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .lock-icon {
+        font-size: 2.5rem;
+        display: block;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    /* 3D Flip Tiles System */
+    .board-wrapper {
+        margin-bottom: 2.5rem;
+    }
+
+    .tiles-grid {
+        display: flex;
+        justify-content: center;
+        gap: 0.6rem;
+    }
+
+    .flip-tile {
+        background-color: transparent;
+        width: 58px;
+        height: 58px;
+        perspective: 1000px; /* Required for 3D effect */
+    }
+
+    .flip-tile-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-style: preserve-3d;
+    }
+
+    .flip-tile.flipped .flip-tile-inner {
+        transform: rotateX(180deg);
+    }
+
+    .flip-tile-front, .flip-tile-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: 900;
+        font-family: 'Open Sans', sans-serif;
+        border-radius: 8px;
+    }
+
+    .flip-tile-front {
+        background-color: #e3e6e8;
+        color: #a0a5aa;
+        border: 2px dashed #c0c5c9;
+    }
+
+    .flip-tile-back {
+        background-color: #6aaa64;
+        color: white;
+        transform: rotateX(180deg);
+        box-shadow: 0 4px 10px rgba(106, 170, 100, 0.3);
+    }
+
+    /* Action Button */
+    .reveal-btn {
+        background: #1a1a1b;
+        color: white;
+        padding: 1.2rem 2.5rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .reveal-btn:hover {
+        background: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Solution Text (Initially Hidden) */
+    .hidden-solution-text {
+        opacity: 0;
+        visibility: hidden;
+        font-size: 1.2rem;
+        color: #555;
+        transform: translateY(10px);
+        transition: all 0.5s ease;
+        height: 0;
+    }
+
+    .hidden-solution-text.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        height: auto;
+    }
+
+    .hidden-solution-text strong {
+        font-size: 1.5rem;
+        color: #1a1a1b;
+        letter-spacing: 0.1em;
+        display: block;
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 500px) {
+        .flip-tile { width: 48px; height: 48px; }
+        .flip-tile-front, .flip-tile-back { font-size: 1.6rem; }
+        .header h2 { font-size: 1.8rem; }
+    }
 </style>

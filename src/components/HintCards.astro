@@ -1,424 +1,176 @@
 ---
 interface Props {
-	vowels: number;
-	consonants: number;
-	startingLetter: string;
-	endingLetter: string;
-	hasRepeating: boolean;
+    vowels: number;
+    consonants: number;
+    startingLetter: string;
+    endingLetter: string;
+    hasRepeating: boolean;
 }
 
 const {
-	vowels,
-	consonants,
-	startingLetter,
-	endingLetter,
-	hasRepeating
+    vowels,
+    consonants,
+    startingLetter,
+    endingLetter,
+    hasRepeating
 } = Astro.props;
-
 ---
 
 <section class="hint-section">
-
-
-<div class="section-header">
-
-<h2>
-	Today's Wordle Hints
-</h2>
-
-<p>
-	Open each clue when you need help solving today's puzzle.
-</p>
-
-</div>
-
-
-
-
-<div class="hint-grid">
-
-
-
-<!-- VOWELS -->
-
-<div class="hint-card yellow">
-
-
-<div class="tile">
-	V
-</div>
-
-
-<div>
-
-<h3>
-	Vowels
-</h3>
-
-
-<p>
-	The answer contains
-	<strong>
-		{vowels}
-	</strong>
-	vowels.
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<!-- START -->
-
-<div class="hint-card green">
-
-
-<div class="tile">
-	S
-</div>
-
-
-<div>
-
-<h3>
-	Starting Letter
-</h3>
-
-
-<p>
-	The word starts with
-	<strong>
-		{startingLetter}
-	</strong>
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<!-- END -->
-
-<div class="hint-card gray">
-
-
-<div class="tile">
-	E
-</div>
-
-
-<div>
-
-<h3>
-	Ending Letter
-</h3>
-
-
-<p>
-	The word ends with
-	<strong>
-		{endingLetter}
-	</strong>
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-
-
-<!-- PATTERN -->
-
-
-<div class="hint-card dark">
-
-
-<div class="tile">
-	?
-</div>
-
-
-<div>
-
-<h3>
-	Letter Pattern
-</h3>
-
-
-<p>
-
-{
-hasRepeating
-?
-"Contains repeating letters"
-:
-"All letters are unique"
-}
-
-</p>
-
-
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
+    <div class="section-header">
+        <h2>Today's Wordle Hints</h2>
+        <p>Use these progressive clues to solve today's puzzle without spoilers.</p>
+    </div>
+
+    <div class="hint-grid">
+        <!-- VOWELS -->
+        <div class="hint-card hover-lift">
+            <div class="icon-wrapper yellow-bg">
+                <span class="modern-icon">V</span>
+            </div>
+            <div class="hint-content">
+                <h3>Vowels</h3>
+                <p>The answer contains <strong>{vowels}</strong> vowel{vowels !== 1 ? 's' : ''}.</p>
+            </div>
+        </div>
+
+        <!-- START -->
+        <div class="hint-card hover-lift">
+            <div class="icon-wrapper green-bg">
+                <span class="modern-icon">S</span>
+            </div>
+            <div class="hint-content">
+                <h3>Starting Letter</h3>
+                <p>The word starts with <strong>{startingLetter}</strong>.</p>
+            </div>
+        </div>
+
+        <!-- END -->
+        <div class="hint-card hover-lift">
+            <div class="icon-wrapper gray-bg">
+                <span class="modern-icon">E</span>
+            </div>
+            <div class="hint-content">
+                <h3>Ending Letter</h3>
+                <p>The word ends with <strong>{endingLetter}</strong>.</p>
+            </div>
+        </div>
+
+        <!-- PATTERN -->
+        <div class="hint-card hover-lift">
+            <div class="icon-wrapper dark-bg">
+                <span class="modern-icon">?</span>
+            </div>
+            <div class="hint-content">
+                <h3>Letter Pattern</h3>
+                <p>{hasRepeating ? "Contains repeating letters." : "All letters are unique."}</p>
+            </div>
+        </div>
+    </div>
 </section>
 
-
-
-
 <style>
-
-
-.hint-section{
-
-	margin:3rem auto;
-
-}
-
-
-
-.section-header{
-
-	text-align:center;
-
-	margin-bottom:2rem;
-
-}
-
-
-
-.section-header h2{
-
-	font-family:Georgia,serif;
-
-	font-size:2rem;
-
-	font-weight:900;
-
-	color:#1a1a1b;
-
-	margin-bottom:.5rem;
-
-}
-
-
-
-.section-header p{
-
-	color:#666;
-
-}
-
-
-
-
-
-.hint-grid{
-
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:1rem;
-
-
-}
-
-
-
-
-.hint-card{
-
-
-background:white;
-
-border:1px solid #d3d6da;
-
-border-radius:18px;
-
-padding:1.25rem;
-
-display:flex;
-
-flex-direction:column;
-
-gap:1rem;
-
-
-transition:.3s ease;
-
-
-}
-
-
-
-.hint-card:hover{
-
-
-transform:translateY(-6px);
-
-
-box-shadow:
-0 15px 35px rgba(0,0,0,.08);
-
-
-}
-
-
-
-.tile{
-
-
-width:42px;
-
-height:42px;
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-
-border-radius:8px;
-
-
-font-size:1.3rem;
-
-font-weight:900;
-
-color:white;
-
-
-}
-
-
-
-.yellow .tile{
-
-background:#c9b458;
-
-}
-
-
-.green .tile{
-
-background:#6aaa64;
-
-}
-
-
-.gray .tile{
-
-background:#787c7e;
-
-}
-
-
-
-.dark .tile{
-
-background:#1a1a1b;
-
-}
-
-
-
-
-
-.hint-card h3{
-
-
-font-size:1.1rem;
-
-font-weight:800;
-
-margin:0 0 .3rem;
-
-color:#1a1a1b;
-
-
-}
-
-
-
-
-.hint-card p{
-
-
-color:#666;
-
-line-height:1.5;
-
-font-size:.95rem;
-
-
-}
-
-
-
-.hint-card strong{
-
-
-font-size:1.15rem;
-
-color:#1a1a1b;
-
-}
-
-
-
-
-@media(max-width:900px){
-
-
-.hint-grid{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-
-}
-
-
-
-
-@media(max-width:500px){
-
-
-.hint-grid{
-
-grid-template-columns:1fr;
-
-}
-
-
-}
-
-
-
+    .hint-section {
+        margin: 4rem auto;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+        font-family: 'Georgia', serif;
+        font-size: 2.4rem;
+        font-weight: 900;
+        color: #1a1a1b;
+        margin-bottom: 0.8rem;
+    }
+
+    .section-header p {
+        color: #555;
+        font-size: 1.1rem;
+    }
+
+    .hint-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+    }
+
+    .hint-card {
+        background: #ffffff;
+        border: 1px solid #e3e6e8;
+        border-radius: 20px;
+        padding: 2rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+        border-color: #d3d6da;
+    }
+
+    /* Modern Soft Icons */
+    .icon-wrapper {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%; /* Made circles instead of squares */
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .modern-icon {
+        font-size: 1.4rem;
+        font-weight: 900;
+        color: white;
+        font-family: 'Open Sans', sans-serif;
+    }
+
+    .yellow-bg { background: linear-gradient(135deg, #d8c368, #c9b458); }
+    .green-bg { background: linear-gradient(135deg, #78bc72, #6aaa64); }
+    .gray-bg { background: linear-gradient(135deg, #8a8e91, #787c7e); }
+    .dark-bg { background: linear-gradient(135deg, #333, #1a1a1b); }
+
+    .hint-content h3 {
+        font-family: 'Open Sans', sans-serif;
+        font-size: 1.15rem;
+        font-weight: 800;
+        margin: 0 0 0.8rem;
+        color: #1a1a1b;
+        letter-spacing: -0.02em;
+    }
+
+    .hint-content p {
+        color: #666;
+        line-height: 1.6;
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .hint-content strong {
+        font-size: 1.15rem;
+        color: #1a1a1b;
+        background: #f3f4f6;
+        padding: 0.1rem 0.5rem;
+        border-radius: 6px;
+    }
+
+    @media (max-width: 900px) {
+        .hint-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 500px) {
+        .hint-grid { grid-template-columns: 1fr; }
+        .section-header h2 { font-size: 2rem; }
+    }
 </style>

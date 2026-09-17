@@ -1,134 +1,49 @@
 ---
 interface Props {
-
-title:string;
-
-description:string;
-
-canonical:string;
-
-image?:string;
-
-type?: "website" | "article";
-
+    title: string;
+    description: string;
+    canonical: string;
+    image?: string;
+    type?: "website" | "article";
 }
 
-
 const {
+    title,
+    description,
+    canonical,
+    image = "https://wordlehinttoday.online/logo.webp",
+    type = "website"
+} = Astro.props;
 
-title,
+const siteName = "Wordle Hint Today";
 
-description,
-
-canonical,
-
-image="https://wordlehinttoday.online/logo.webp",
-
-type="website"
-
-}=Astro.props;
-
-
-const siteName =
-"Wordle Hint Today";
-
-
+// FRESHNESS SIGNAL: Google aur AI bots ko batane ke liye ke content fresh hai
+const datePublished = new Date().toISOString();
 ---
 
-
-<title>
-{title}
-</title>
-
-
-<meta
-name="description"
-content={description}
-/>
-
-
-<meta
-name="robots"
-content="index, follow, max-image-preview:large"
-/>
-
-
-<link
-rel="canonical"
-href={canonical}
-/>
-
-
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<link rel="canonical" href={canonical} />
 
 <!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:image" content={image} />
 
-<meta
-property="og:type"
-content={type}
-/>
-
-
-<meta
-property="og:title"
-content={title}
-/>
-
-
-<meta
-property="og:description"
-content={description}
-/>
-
-
-<meta
-property="og:url"
-content={canonical}
-/>
-
-
-<meta
-property="og:site_name"
-content={siteName}
-/>
-
-
-<meta
-property="og:image"
-content={image}
-/>
-
-
+<!-- Article & Author Signals (Generative Engine Optimization) -->
+<meta property="article:published_time" content={datePublished} />
+<meta property="article:author" content={siteName} />
+<meta name="author" content={siteName} />
 
 <!-- Twitter -->
-
-<meta
-name="twitter:card"
-content="summary_large_image"
-/>
-
-
-<meta
-name="twitter:title"
-content={title}
-/>
-
-
-<meta
-name="twitter:description"
-content={description}
-/>
-
-
-<meta
-name="twitter:image"
-content={image}
-/>
-
-
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image} />
 
 <!-- Mobile Theme -->
-
-<meta
-name="theme-color"
-content="#ffffff"
-/>
+<meta name="theme-color" content="#ffffff" />

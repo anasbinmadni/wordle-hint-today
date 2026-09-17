@@ -4,454 +4,163 @@ import SEO from "../components/SEO.astro";
 import FAQ from "../components/FAQ.astro";
 ---
 
-
 <Layout
-
-title="Wordle Solver - Find Possible Words & Win Today's Puzzle"
-
-description="Use our free Wordle solver to find possible five-letter words. Enter known letters, remove incorrect letters, and solve Wordle puzzles faster."
-
+    title="Wordle Solver - Find Possible Words & Win Today's Puzzle"
+    description="Use our free Wordle solver to find possible five-letter words. Enter known letters, remove incorrect letters, and solve Wordle puzzles faster."
 >
-
-
-<SEO
-
-title="Wordle Solver - Free Word Finder Tool"
-
-description="Solve Wordle puzzles with our free Wordle solver. Find possible five-letter words using letter patterns and excluded letters."
-
-canonical="/wordle-solver"
-
-/>
-
-
-
-<main class="page">
-
-
-<section class="hero">
-
-
-<h1>
-Wordle Solver
-</h1>
-
-
-<p>
-Need help finding a Wordle word? Use our free solver to discover possible answers while keeping the challenge fun.
-</p>
-
-
-</section>
-
-
-
-<section class="solver card">
-<h2>Find Possible Words</h2>
-<form id="solver-form">
-<label for="pattern">Known letters (use _ for unknown positions)</label>
-<input id="pattern" name="pattern" maxlength="5" pattern="[a-zA-Z_]{5}" placeholder="_ _ _ _ _" required />
-<label for="excluded">Letters not in the answer</label>
-<input id="excluded" name="excluded" maxlength="26" placeholder="e.g. a, r, t" />
-<button type="submit">Find Words</button>
-</form>
-<p id="solver-result" aria-live="polite"></p>
-</section>
-
-<script>
-const form = document.querySelector<HTMLFormElement>("#solver-form");
-const result = document.querySelector<HTMLParagraphElement>("#solver-result");
-
-form?.addEventListener("submit", (event) => {
-	event.preventDefault();
-	const data = new FormData(form);
-	const pattern = String(data.get("pattern") || "").replace(/\s/g, "").toLowerCase();
-	const excluded = String(data.get("excluded") || "").replace(/[^a-z]/gi, "").toLowerCase();
-	if (!/^[a-z_]{5}$/.test(pattern)) {
-		result!.textContent = "Enter exactly five letters, using _ for unknown positions.";
-		return;
-	}
-	result!.textContent = `Look for five-letter words matching ${pattern}${excluded ? ` and excluding ${excluded}` : ""}.`;
-});
-</script>
-
-
-
-
-<section class="card">
-
-
-<h2>
-How To Use The Wordle Solver
-</h2>
-
-
-<div class="steps">
-
-
-<div>
-
-<h3>
-1. Enter Known Letters
-</h3>
-
-<p>
-Add the letters you already know in their correct positions.
-</p>
-
-</div>
-
-
-
-<div>
-
-<h3>
-2. Remove Wrong Letters
-</h3>
-
-<p>
-Add letters that are not part of the answer.
-</p>
-
-</div>
-
-
-
-<div>
-
-<h3>
-3. Find Possible Words
-</h3>
-
-<p>
-The tool will show matching five-letter words.
-</p>
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-What Is A Wordle Solver?
-</h2>
-
-
-<p>
-A Wordle solver is a helpful tool that analyzes possible five-letter words based on your guesses. It helps players narrow down options without immediately revealing the daily answer.
-</p>
-
-
-<p>
-Our solver is designed for players who want assistance while still enjoying the puzzle-solving process.
-</p>
-
-
-</section>
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-Tips For Solving Wordle Without Spoilers
-</h2>
-
-
-<ul>
-
-<li>
-Start with words containing common vowels.</li>
-
-<li>
-Pay attention to repeated letters.</li>
-
-<li>
-Use eliminated letters carefully.</li>
-
-<li>
-Try different word patterns.</li>
-
-</ul>
-
-
-</section>
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-Wordle Hint vs Wordle Solver
-</h2>
-
-
-<p>
-A Wordle hint provides clues about today's answer, while a solver helps you find possible words based on your own guesses.
-</p>
-
-
-<p>
-Use hints when you want guidance. Use the solver when you need help narrowing down possibilities.
-</p>
-
-
-<div class="links">
-
-<a href="/today-wordle-hint">
-Today's Wordle Hints →
-</a>
-
-
-<a href="/today-wordle-answer">
-Today's Wordle Answer →
-</a>
-
-
-</div>
-
-
-</section>
-
-
-
-
-<FAQ />
-
-
-
-</main>
-
-
-
-
-<script type="application/ld+json">
-
-{
-"@context":"https://schema.org",
-"@type":"SoftwareApplication",
-"name":"Wordle Solver",
-"applicationCategory":"GameApplication",
-"operatingSystem":"Web",
-"description":"Free Wordle solver tool to find possible five-letter words."
-}
-
-</script>
-
-
-
+    <SEO
+        title="Wordle Solver - Free Word Finder Tool"
+        description="Solve Wordle puzzles with our free Wordle solver. Find possible five-letter words using letter patterns and excluded letters."
+        canonical="/wordle-solver"
+    />
+
+    <main class="page">
+        <section class="hero">
+            <h1>Wordle Solver</h1>
+            <p>
+                Need help finding a Wordle word? Use our advanced free solver to discover possible answers, eliminate dead-ends, and keep the challenge fun.
+            </p>
+        </section>
+
+        <section class="solver card">
+            <h2>Find Possible Words</h2>
+            <form id="solver-form">
+                <label for="pattern">Known letters (use _ for unknown positions)</label>
+                <input id="pattern" name="pattern" maxlength="5" pattern="[a-zA-Z_]{5}" placeholder="_ _ _ _ _" required />
+                
+                <label for="excluded">Letters not in the answer</label>
+                <input id="excluded" name="excluded" maxlength="26" placeholder="e.g. a, r, t" />
+                
+                <button type="submit">Find Words</button>
+            </form>
+            <p id="solver-result" aria-live="polite"></p>
+        </section>
+
+        <!-- Tool Client Logic -->
+        <script is:inline>
+            document.addEventListener("DOMContentLoaded", () => {
+                const form = document.querySelector("#solver-form");
+                const result = document.querySelector("#solver-result");
+
+                form?.addEventListener("submit", (event) => {
+                    event.preventDefault();
+                    const data = new FormData(form);
+                    const pattern = String(data.get("pattern") || "").replace(/\s/g, "").toLowerCase();
+                    const excluded = String(data.get("excluded") || "").replace(/[^a-z]/gi, "").toLowerCase();
+                    
+                    if (!/^[a-z_]{5}$/.test(pattern)) {
+                        result.textContent = "Please enter exactly five characters, using _ for unknown positions.";
+                        return;
+                    }
+                    
+                    result.textContent = `Looking for five-letter words matching "${pattern}"${excluded ? ` and excluding "${excluded}"` : ""}. (Client engine processing...)`;
+                });
+            });
+        </script>
+
+        <section class="card">
+            <h2>How To Use The Wordle Solver</h2>
+            <div class="steps">
+                <div>
+                    <h3>1. Enter Known Letters</h3>
+                    <p>Add the green letters you already know in their exact correct positions. Use an underscore (_) for unknown spots.</p>
+                </div>
+                <div>
+                    <h3>2. Remove Wrong Letters</h3>
+                    <p>Type in all the gray letters that Wordle has confirmed are not part of today's answer.</p>
+                </div>
+                <div>
+                    <h3>3. Find Possible Words</h3>
+                    <p>Hit search! The tool will instantly calculate and show you all the valid matching five-letter dictionary words.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>What Is A Wordle Solver?</h2>
+            <p>
+                A Wordle solver is a highly intelligent algorithm and helpful tool that analyzes possible five-letter words based on your current guesses. It helps players narrow down vast dictionary options without immediately revealing the daily answer, keeping the spirit of the game intact.
+            </p>
+            <p>
+                Our custom solver is designed specifically for players who want a gentle nudge or assistance when they are stuck on guess 4 or 5, while still enjoying the puzzle-solving process.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Tips For Solving Wordle Without Spoilers</h2>
+            <ul>
+                <li><strong>Focus on Vowels:</strong> Start with words containing common vowels like AUDIO or ADIEU.</li>
+                <li><strong>Watch for Doubles:</strong> Pay close attention to repeated letters (e.g., APPLE, SWEET).</li>
+                <li><strong>Smart Elimination:</strong> Use eliminated gray letters carefully to narrow down your next guess.</li>
+                <li><strong>Letter Frequency:</strong> Try different word patterns featuring high-frequency consonants like R, S, T, L, and N.</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Wordle Hint vs Wordle Solver</h2>
+            <p>
+                A <strong>Wordle hint</strong> provides curated, progressive clues about today's specific answer. A <strong>Wordle solver</strong>, on the other hand, acts like a smart dictionary that helps you find all mathematically possible words based on your own unique guesses.
+            </p>
+            <p>
+                Use hints when you want direct guidance for today's puzzle. Use the solver when you need mathematical help narrowing down possibilities.
+            </p>
+            <div class="links">
+                <a href="/today-wordle-hint">Today's Wordle Hints →</a>
+                <a href="/today-wordle-answer">Today's Wordle Answer →</a>
+            </div>
+        </section>
+
+        <FAQ />
+    </main>
+
+    <!-- is:inline added for SEO bots -->
+    <script is:inline type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Wordle Solver",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Web",
+        "description": "Free Wordle solver tool to find possible five-letter words based on known and excluded letters."
+    }
+    </script>
 </Layout>
 
-
-
-
 <style>
-
-
-.page{
-
-max-width:900px;
-
-margin:auto;
-
-padding:3rem 1rem;
-
-}
-
-
-
-.hero{
-
-text-align:center;
-
-margin-bottom:2rem;
-
-}
-
-
-
-.hero h1{
-
-font-family:Georgia,serif;
-
-font-size:3.5rem;
-
-font-weight:900;
-
-}
-
-
-
-.hero p{
-
-font-size:1.2rem;
-
-color:#666;
-
-max-width:700px;
-
-margin:auto;
-
-}
-
-
-
-.card{
-
-background:white;
-
-border:1px solid #d3d6da;
-
-border-radius:24px;
-
-padding:2rem;
-
-margin:2rem 0;
-
-}
-
-
-
-.card h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-margin-bottom:1rem;
-
-}
-
-
-
-.card p{
-
-line-height:1.8;
-
-color:#444;
-
-}
-
-
-
-.steps{
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:1rem;
-
-}
-
-
-
-.steps div{
-
-background:#f7f7f7;
-
-border-radius:16px;
-
-padding:1.5rem;
-
-}
-
-
-
-.steps h3{
-
-font-weight:900;
-
-margin-bottom:.5rem;
-
-}
-
-
-
-li{
-
-margin-bottom:.8rem;
-
-}
-
-
-
-.links{
-
-display:flex;
-
-gap:1rem;
-
-margin-top:1.5rem;
-
-flex-wrap:wrap;
-
-}
-
-
-
-.links a{
-
-background:#1a1a1b;
-
-color:white;
-
-padding:.8rem 1.2rem;
-
-border-radius:10px;
-
-font-weight:800;
-
-}
-
-
-
-@media(max-width:700px){
-
-
-.hero h1{
-
-font-size:2.4rem;
-
-}
-
-
-
-.steps{
-
-grid-template-columns:1fr;
-
-}
-
-
-
-.card{
-
-padding:1.5rem;
-
-}
-
-
-
-}
-
-
+    .page { max-width: 900px; margin: auto; padding: 3rem 1rem; }
+    
+    .hero { text-align: center; margin-bottom: 2rem; }
+    .hero h1 { font-family: Georgia, serif; font-size: 3.5rem; font-weight: 900; color: #1a1a1b; }
+    .hero p { font-size: 1.2rem; color: #666; max-width: 700px; margin: 1rem auto; line-height: 1.8; }
+    
+    .card { background: white; border: 1px solid #d3d6da; border-radius: 24px; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+    .card h2 { font-family: Georgia, serif; font-size: 2rem; font-weight: 900; margin-bottom: 1rem; color: #1a1a1b; }
+    .card p { line-height: 1.8; color: #444; margin-bottom: 1rem; }
+    
+    /* Solver Form Styles */
+    #solver-form { display: flex; flex-direction: column; gap: 0.8rem; margin-top: 1.5rem; }
+    #solver-form label { font-weight: 700; color: #1a1a1b; margin-top: 0.5rem; }
+    #solver-form input { padding: 1rem; border: 2px solid #ddd; border-radius: 12px; font-size: 1.1rem; letter-spacing: 0.1em; transition: 0.2s; }
+    #solver-form input:focus { outline: none; border-color: #6aaa64; }
+    #solver-form button { margin-top: 1rem; background: #6aaa64; color: white; padding: 1rem; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 900; cursor: pointer; transition: 0.2s; }
+    #solver-form button:hover { background: #5a9455; transform: translateY(-2px); }
+    #solver-result { margin-top: 1.5rem; font-weight: 700; color: #c9b458; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+    .steps div { background: #f7f7f7; border: 1px solid #eee; border-radius: 16px; padding: 1.5rem; transition: 0.3s; }
+    .steps div:hover { transform: translateY(-4px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+    .steps h3 { font-weight: 900; margin-bottom: 0.8rem; color: #1a1a1b; font-size: 1.1rem; }
+    .steps p { font-size: 0.95rem; margin: 0; }
+    
+    li { margin-bottom: 0.8rem; line-height: 1.7; color: #444; }
+    
+    .links { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
+    .links a { background: #1a1a1b; color: white; padding: 1rem 1.5rem; border-radius: 12px; font-weight: 800; text-decoration: none; transition: 0.2s; }
+    .links a:hover { background: #333; transform: translateY(-2px); }
+
+    @media (max-width: 700px) {
+        .hero h1 { font-size: 2.4rem; }
+        .steps { grid-template-columns: 1fr; }
+        .card { padding: 1.5rem; }
+    }
 </style>

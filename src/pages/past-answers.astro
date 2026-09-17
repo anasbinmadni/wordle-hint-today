@@ -1,1102 +1,243 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import FAQ from "../components/FAQ.astro";
-
 import { getCachedWordle } from "../lib/cache";
-
-
 
 export const prerender = false;
 
-
-
 interface ArchiveItem {
-
-date:string;
-
-month:string;
-
-year:number;
-
-puzzleNumber:number;
-
-answer:string;
-
-vowels:number;
-
-consonants:number;
-
-startingLetter:string;
-
-endingLetter:string;
-
-repeat:boolean;
-
-difficulty:string;
-
-difficultyClass:string;
-
-link:string;
-
+    date: string;
+    month: string;
+    year: number;
+    puzzleNumber: number;
+    answer: string;
+    vowels: number;
+    consonants: number;
+    startingLetter: string;
+    endingLetter: string;
+    repeat: boolean;
+    difficulty: string;
+    difficultyClass: string;
+    link: string;
 }
 
+function calculateDifficulty(word: string) {
+    const letters = word.toLowerCase().split("");
+    const vowels = letters.filter((l: string) => ["a", "e", "i", "o", "u"].includes(l)).length;
+    const rare = letters.filter((l) => ["q", "z", "j", "x", "v", "k", "w"].includes(l)).length;
+    const repeat = new Set(letters).size !== letters.length;
 
+    let score = 4;
+    if (repeat) score += 2;
+    score += rare;
+    if (vowels <= 1) score += 1;
+    if (vowels >= 3) score -= 1;
 
-function calculateDifficulty(word:string){
+    score = Math.min(10, Math.max(1, score));
 
+    if (score >= 7) {
+        return { label: "Hard", class: "hard" };
+    }
+    if (score <= 4) {
+        return { label: "Easy", class: "easy" };
+    }
+    return { label: "Medium", class: "medium" };
+}
 
-const letters =
-word.toLowerCase().split("");
+// STRICT EST TIMEZONE FIX
+const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+const today = new Date(estTimeString);
 
+const archive: ArchiveItem[] = [];
+let stats = { total: 0, easy: 0, medium: 0, hard: 0 };
 
+for (let i = 0; i < 365; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - i);
 
-const vowels =
-letters.filter(
-(l: string)=>["a","e","i","o","u"].includes(l)
-).length;
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const apiDate = `${yyyy}-${mm}-${dd}`;
 
+    try {
+        const data = await getCachedWordle(apiDate);
+        if (!data) continue;
 
+        const answer = data.solution.toUpperCase();
+        const letters = answer.toLowerCase().split("");
+        const vowelCount = letters.filter((l: string) => ["a", "e", "i", "o", "u"].includes(l)).length;
+        const difficulty = calculateDifficulty(answer);
 
-const rare =
-letters.filter(
-l=>["q","z","j","x","v","k","w"].includes(l)
-).length;
+        stats.total++;
+        if (difficulty.label === "Easy") stats.easy++;
+        if (difficulty.label === "Medium") stats.medium++;
+        if (difficulty.label === "Hard") stats.hard++;
 
+        archive.push({
+            date: date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+            month: date.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+            year: yyyy,
+            puzzleNumber: data.days_since_launch,
+            answer,
+            vowels: vowelCount,
+            consonants: 5 - vowelCount,
+            startingLetter: answer.charAt(0),
+            endingLetter: answer.charAt(4),
+            repeat: new Set(letters).size !== letters.length,
+            difficulty: difficulty.label,
+            difficultyClass: difficulty.class,
+            link: `/wordle-hint-${data.days_since_launch}-${yyyy}-${mm}-${dd}`
+        });
+    } catch (error) {
+        console.error("Archive fetch error", apiDate, error);
+    }
+}
 
+const groupedMonths = Object.groupBy(archive, (item) => item.month);
 
-const repeat =
-new Set(letters).size !== letters.length;
-
-
-
-let score = 4;
-
-
-
-if(repeat)
-score +=2;
-
-
-
-score += rare;
-
-
-
-if(vowels<=1)
-score +=1;
-
-
-
-if(vowels>=3)
-score -=1;
-
-
-
-score =
-Math.min(
-10,
-Math.max(
-1,
-score
-)
-);
-
-
-
-if(score>=7){
-
-return {
-
-label:"Hard",
-
-class:
-"hard"
-
+const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Wordle Past Answers Archive",
+    "description": "Browse previous Wordle answers with dates, puzzle numbers, difficulty and word analysis.",
+    "url": "https://wordlehinttoday.online/past-answers"
 };
-
-}
-
-
-
-if(score<=4){
-
-return {
-
-label:"Easy",
-
-class:
-"easy"
-
-};
-
-}
-
-
-
-return {
-
-label:"Medium",
-
-class:
-"medium"
-
-};
-
-}
-
-
-
-
-
-const today = new Date();
-
-
-const archive:ArchiveItem[]=[];
-
-
-
-let stats={
-
-total:0,
-
-easy:0,
-
-medium:0,
-
-hard:0
-
-};
-
-
-
-for(let i=0;i<365;i++){
-
-
-
-const date =
-new Date(today);
-
-
-date.setDate(
-today.getDate()-i
-);
-
-
-
-const yyyy =
-date.getFullYear();
-
-
-
-const mm =
-String(date.getMonth()+1)
-.padStart(2,"0");
-
-
-
-const dd =
-String(date.getDate())
-.padStart(2,"0");
-
-
-
-const apiDate =
-`${yyyy}-${mm}-${dd}`;
-
-
-
-try{
-
-
-const data =
-await getCachedWordle(
-apiDate
-);
-
-
-
-if(!data)
-continue;
-
-
-
-const answer =
-data.solution.toUpperCase();
-
-
-
-const letters =
-answer.toLowerCase().split("");
-
-
-
-const vowelCount =
-letters.filter(
-(l: string)=>["a","e","i","o","u"].includes(l)
-).length;
-
-
-
-const difficulty =
-calculateDifficulty(answer);
-
-
-
-stats.total++;
-
-
-if(difficulty.label==="Easy")
-stats.easy++;
-
-
-if(difficulty.label==="Medium")
-stats.medium++;
-
-
-if(difficulty.label==="Hard")
-stats.hard++;
-
-
-
-
-archive.push({
-
-
-date:
-date.toLocaleDateString(
-"en-US",
-{
-weekday:"short",
-month:"short",
-day:"numeric"
-}
-),
-
-
-month:
-date.toLocaleDateString(
-"en-US",
-{
-month:"long",
-year:"numeric"
-}
-),
-
-
-year:yyyy,
-
-
-puzzleNumber:
-data.days_since_launch,
-
-
-answer,
-
-
-vowels:vowelCount,
-
-
-consonants:
-5-vowelCount,
-
-
-startingLetter:
-answer.charAt(0),
-
-
-endingLetter:
-answer.charAt(4),
-
-
-repeat:
-new Set(letters).size !== letters.length,
-
-
-difficulty:
-difficulty.label,
-
-
-difficultyClass:
-difficulty.class,
-
-
-link:
-`/wordle-hint-${data.days_since_launch}-${yyyy}-${mm}-${dd}`
-
-
-});
-
-
-
-}
-
-
-catch(error){
-
-console.error(
-"Archive fetch error",
-apiDate,
-error
-);
-
-
-}
-
-
-
-}
-
-
-
-const groupedMonths =
-Object.groupBy(
-archive,
-(item)=>item.month
-);
-
-
-
-const schema={
-
-
-"@context":
-"https://schema.org",
-
-
-"@type":
-"CollectionPage",
-
-
-"name":
-"Wordle Past Answers Archive",
-
-
-"description":
-"Browse previous Wordle answers with dates, puzzle numbers, difficulty and word analysis.",
-
-
-"url":
-"https://wordlehinttoday.online/past-answers"
-
-
-};
-
 ---
 
 <Layout
-
-title="Wordle Past Answers Archive - Previous Wordle Solutions by Date"
-
-description="Browse 365 previous Wordle answers with puzzle numbers, dates, difficulty levels, vowels, letters analysis and historical puzzle details."
-
+    title="Wordle Past Answers Archive - Previous Wordle Solutions by Date"
+    description="Browse 365 previous Wordle answers with puzzle numbers, dates, difficulty levels, vowels, letters analysis and historical puzzle details."
 >
-
-
-<script
-type="application/ld+json"
-set:html={JSON.stringify(schema)}
-/>
-
-
-
-<main class="archive-container">
-
-
-
-<section class="hero">
-
-
-<h1>
-Wordle Past Answers Archive
-</h1>
-
-
-<p>
-Explore the last 365 Wordle answers with puzzle numbers, dates, difficulty ratings, and detailed word analysis.
-Find previous solutions organized month by month.
-</p>
-
-
-
-<div class="stats">
-
-
-<div>
-
-<strong>
-{stats.total}
-</strong>
-
-<span>
-Puzzles
-</span>
-
-</div>
-
-
-
-<div>
-
-<strong class="easy-text">
-{stats.easy}
-</strong>
-
-<span>
-Easy
-</span>
-
-</div>
-
-
-
-<div>
-
-<strong class="medium-text">
-{stats.medium}
-</strong>
-
-<span>
-Medium
-</span>
-
-</div>
-
-
-
-<div>
-
-<strong class="hard-text">
-{stats.hard}
-</strong>
-
-<span>
-Hard
-</span>
-
-</div>
-
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-<section class="intro">
-
-
-<h2>
-About This Wordle Answer Archive
-</h2>
-
-
-<p>
-
-This Wordle archive helps players find previous answers quickly.
-Each puzzle includes the official solution, puzzle number, date,
-difficulty estimate, and letter breakdown.
-
-Use this page to review past puzzles, improve your strategy,
-and explore Wordle patterns over time.
-
-</p>
-
-
-</section>
-
-
-
-
-
-
-
-<section class="months">
-
-
-{
-
-Object.entries(groupedMonths)
-.map(([month,items])=>(
-
-
-<div class="month-block">
-
-
-<h2>
-{month} Wordle Answers
-</h2>
-
-
-
-<div class="cards">
-
-
-{
-
-(items ?? []).map(item=>(
-
-
-<article class="card">
-
-
-
-<div class="top">
-
-
-<span class="number">
-
-#{item.puzzleNumber}
-
-</span>
-
-
-
-<span class={`difficulty ${item.difficultyClass}`}>
-
-{item.difficulty}
-
-</span>
-
-
-</div>
-
-
-
-
-<h3>
-
-{item.answer}
-
-</h3>
-
-
-
-
-<div class="details">
-
-
-<p>
-
-📅 {item.date}
-
-</p>
-
-
-<p>
-
-🔤 {item.vowels} vowels • {item.consonants} consonants
-
-</p>
-
-
-
-<p>
-
-▶ Starts {item.startingLetter}
-
-•
-Ends {item.endingLetter}
-
-</p>
-
-
-
-<p>
-
-{
-
-item.repeat
-
-?
-
-"🔁 Repeating letters"
-
-:
-
-"✓ Unique letters"
-
-}
-
-</p>
-
-
-
-</div>
-
-
-
-
-<a href={item.link}>
-
-View Full Analysis →
-
-</a>
-
-
-
-
-</article>
-
-
-
-))
-
-}
-
-
-</div>
-
-
-
-</div>
-
-
-))
-
-}
-
-
-
-</section>
-
-
-
-
-
-
-<section class="archive-help">
-
-
-<h2>
-How To Use The Wordle Archive
-</h2>
-
-
-
-<div class="help-grid">
-
-
-<div>
-
-<h3>
-Check Previous Answers
-</h3>
-
-<p>
-Find any recent Wordle solution by date or puzzle number.
-</p>
-
-</div>
-
-
-
-<div>
-
-<h3>
-Study Word Patterns
-</h3>
-
-<p>
-Analyze common letters, vowels and repeated patterns.
-</p>
-
-</div>
-
-
-
-
-<div>
-
-<h3>
-Improve Future Guesses
-</h3>
-
-<p>
-Learn from previous solutions and build stronger starting strategies.
-</p>
-
-</div>
-
-
-
-</div>
-
-
-
-</section>
-
-
-
-
-
-
-<FAQ />
-
-
-
-</main>
-
-
-
+    <!-- is:inline added for SEO bots -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+    <main class="archive-container">
+        <section class="hero">
+            <h1>Wordle Past Answers Archive</h1>
+            <p>
+                Explore the last 365 Wordle answers with puzzle numbers, dates, difficulty ratings, and detailed word analysis.
+                Find previous solutions organized month by month.
+            </p>
+            <div class="stats">
+                <div>
+                    <strong>{stats.total}</strong>
+                    <span>Puzzles</span>
+                </div>
+                <div>
+                    <strong class="easy-text">{stats.easy}</strong>
+                    <span>Easy</span>
+                </div>
+                <div>
+                    <strong class="medium-text">{stats.medium}</strong>
+                    <span>Medium</span>
+                </div>
+                <div>
+                    <strong class="hard-text">{stats.hard}</strong>
+                    <span>Hard</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="intro">
+            <h2>About This Wordle Answer Archive</h2>
+            <p>
+                This Wordle archive helps players find previous answers quickly.
+                Each puzzle includes the official solution, puzzle number, date,
+                difficulty estimate, and letter breakdown.
+                Use this page to review past puzzles, improve your strategy,
+                and explore Wordle patterns over time.
+            </p>
+        </section>
+
+        <section class="months">
+            {Object.entries(groupedMonths).map(([month, items]) => (
+                <div class="month-block">
+                    <h2>{month} Wordle Answers</h2>
+                    <div class="cards">
+                        {(items ?? []).map((item) => (
+                            <article class="card">
+                                <div class="top">
+                                    <span class="number">#{item.puzzleNumber}</span>
+                                    <span class={`difficulty ${item.difficultyClass}`}>{item.difficulty}</span>
+                                </div>
+                                <h3>{item.answer}</h3>
+                                <div class="details">
+                                    <p>📅 {item.date}</p>
+                                    <p>🔤 {item.vowels} vowels • {item.consonants} consonants</p>
+                                    <p>▶ Starts {item.startingLetter} • Ends {item.endingLetter}</p>
+                                    <p>{item.repeat ? "🔁 Repeating letters" : "✓ Unique letters"}</p>
+                                </div>
+                                <a href={item.link}>View Full Analysis →</a>
+                            </article>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </section>
+
+        <section class="archive-help">
+            <h2>How To Use The Wordle Archive</h2>
+            <div class="help-grid">
+                <div>
+                    <h3>Check Previous Answers</h3>
+                    <p>Find any recent Wordle solution by date or puzzle number.</p>
+                </div>
+                <div>
+                    <h3>Study Word Patterns</h3>
+                    <p>Analyze common letters, vowels and repeated patterns.</p>
+                </div>
+                <div>
+                    <h3>Improve Future Guesses</h3>
+                    <p>Learn from previous solutions and build stronger starting strategies.</p>
+                </div>
+            </div>
+        </section>
+
+        <FAQ />
+    </main>
 </Layout>
 
-
-
-
-
 <style>
-
-
-
-.archive-container{
-
-max-width:1100px;
-
-margin:auto;
-
-padding:2rem 1rem;
-
-}
-
-
-
-.hero{
-
-text-align:center;
-
-padding:3rem 0;
-
-}
-
-
-
-.hero h1{
-
-font-family:Georgia,serif;
-
-font-size:clamp(2rem,5vw,3.2rem);
-
-font-weight:900;
-
-}
-
-
-
-.hero p{
-
-max-width:700px;
-
-margin:1rem auto;
-
-color:#666;
-
-line-height:1.7;
-
-}
-
-
-
-
-.stats{
-
-display:grid;
-
-grid-template-columns:repeat(4,1fr);
-
-gap:1rem;
-
-margin-top:2rem;
-
-}
-
-
-
-.stats div{
-
-border:1px solid #ddd;
-
-padding:1.5rem;
-
-border-radius:18px;
-
-background:white;
-
-}
-
-
-
-.stats strong{
-
-display:block;
-
-font-size:2rem;
-
-}
-
-
-
-.stats span{
-
-color:#666;
-
-}
-
-
-
-.easy-text{
-
-color:#6aaa64;
-
-}
-
-
-.medium-text{
-
-color:#c9b458;
-
-}
-
-
-.hard-text{
-
-color:#d9534f;
-
-}
-
-
-
-
-
-.intro{
-
-margin:3rem 0;
-
-line-height:1.8;
-
-}
-
-
-
-.intro h2,
-.month-block h2,
-.archive-help h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-margin-bottom:1rem;
-
-}
-
-
-
-
-
-.month-block{
-
-margin:4rem 0;
-
-}
-
-
-
-
-.cards{
-
-display:grid;
-
-grid-template-columns:
-repeat(3,1fr);
-
-gap:1rem;
-
-}
-
-
-
-.card{
-
-border:1px solid #ddd;
-
-border-radius:18px;
-
-padding:1.4rem;
-
-background:white;
-
-transition:.25s;
-
-}
-
-
-
-.card:hover{
-
-transform:translateY(-5px);
-
-box-shadow:
-0 15px 35px rgba(0,0,0,.08);
-
-}
-
-
-
-.top{
-
-display:flex;
-
-justify-content:space-between;
-
-}
-
-
-
-.number{
-
-font-weight:900;
-
-}
-
-
-
-.difficulty{
-
-padding:.3rem .7rem;
-
-border-radius:20px;
-
-font-size:.8rem;
-
-font-weight:800;
-
-}
-
-
-
-.easy{
-
-background:#e8f5e9;
-
-color:#388e3c;
-
-}
-
-
-
-.medium{
-
-background:#fff8e1;
-
-color:#b28704;
-
-}
-
-
-
-.hard{
-
-background:#ffebee;
-
-color:#c62828;
-
-}
-
-
-
-
-.card h3{
-
-font-size:2rem;
-
-letter-spacing:.2rem;
-
-margin:1rem 0;
-
-}
-
-
-
-.details{
-
-font-size:.9rem;
-
-color:#666;
-
-line-height:1.7;
-
-}
-
-
-
-.card a{
-
-display:block;
-
-margin-top:1rem;
-
-font-weight:800;
-
-color:#1a1a1b;
-
-}
-
-
-
-
-
-.help-grid{
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:1rem;
-
-}
-
-
-
-.help-grid div{
-
-padding:1.5rem;
-
-border-radius:18px;
-
-border:1px solid #ddd;
-
-}
-
-
-
-
-@media(max-width:800px){
-
-
-.stats{
-
-grid-template-columns:repeat(2,1fr);
-
-}
-
-
-
-.cards,
-.help-grid{
-
-grid-template-columns:1fr;
-
-}
-
-
-}
-
-
-
+    .archive-container { max-width: 1100px; margin: auto; padding: 2rem 1rem; }
+    .hero { text-align: center; padding: 3rem 0; }
+    .hero h1 { font-family: Georgia, serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; }
+    .hero p { max-width: 700px; margin: 1rem auto; color: #666; line-height: 1.7; }
+    
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 2rem; }
+    .stats div { border: 1px solid #ddd; padding: 1.5rem; border-radius: 18px; background: white; }
+    .stats strong { display: block; font-size: 2rem; }
+    .stats span { color: #666; }
+    
+    .easy-text { color: #6aaa64; }
+    .medium-text { color: #c9b458; }
+    .hard-text { color: #d9534f; }
+    
+    .intro { margin: 3rem 0; line-height: 1.8; }
+    .intro h2, .month-block h2, .archive-help h2 { font-family: Georgia, serif; font-size: 2rem; font-weight: 900; margin-bottom: 1rem; }
+    .month-block { margin: 4rem 0; }
+    
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .card { border: 1px solid #ddd; border-radius: 18px; padding: 1.4rem; background: white; transition: 0.25s; }
+    .card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08); }
+    
+    .top { display: flex; justify-content: space-between; }
+    .number { font-weight: 900; }
+    .difficulty { padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: 800; }
+    
+    .easy { background: #e8f5e9; color: #388e3c; }
+    .medium { background: #fff8e1; color: #b28704; }
+    .hard { background: #ffebee; color: #c62828; }
+    
+    .card h3 { font-size: 2rem; letter-spacing: 0.2rem; margin: 1rem 0; }
+    .details { font-size: 0.9rem; color: #666; line-height: 1.7; }
+    .card a { display: block; margin-top: 1rem; font-weight: 800; color: #1a1a1b; }
+    
+    .help-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .help-grid div { padding: 1.5rem; border-radius: 18px; border: 1px solid #ddd; }
+
+    @media (max-width: 800px) {
+        .stats { grid-template-columns: repeat(2, 1fr); }
+        .cards, .help-grid { grid-template-columns: 1fr; }
+    }
 </style>

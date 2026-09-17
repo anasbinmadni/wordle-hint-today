@@ -1,634 +1,247 @@
 ---
 import Layout from "../layouts/Layout.astro";
-
 import Hero from "../components/Hero.astro";
 import HintCards from "../components/HintCards.astro";
 import AnswerReveal from "../components/AnswerReveal.astro";
 import FAQ from "../components/FAQ.astro";
-
 import { getCachedWordle } from "../lib/cache";
-
 
 export const prerender = false;
 
-
-
-const today = new Date();
-
+// STRICT EST TIMEZONE FIX FOR WORDLE NYT API
+const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+const today = new Date(estTimeString);
 
 const year = today.getFullYear();
-
-const month = String(today.getMonth()+1).padStart(2,"0");
-
-const day = String(today.getDate()).padStart(2,"0");
-
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const day = String(today.getDate()).padStart(2, "0");
 
 const apiDate = `${year}-${month}-${day}`;
 
+const currentDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric"
+});
 
-
-const currentDate =
-today.toLocaleDateString(
-"en-US",
-{
-weekday:"long",
-month:"long",
-day:"numeric"
-}
-);
-
-
-
-let answer="SLATE";
-
-let puzzleNumber=0;
-
-
+let answer = "SLATE";
+let puzzleNumber = 0;
 
 try {
-
-
-const data =
-await getCachedWordle(apiDate);
-
-
-
-if(data){
-
-answer=data.solution;
-
-puzzleNumber=data.days_since_launch;
-
+    const data = await getCachedWordle(apiDate);
+    if (data) {
+        answer = data.solution;
+        puzzleNumber = data.days_since_launch;
+    }
+} catch (error) {
+    console.error("Wordle Fetch Error:", error);
 }
 
+const word = answer.toLowerCase();
 
-}
+const vowels = word
+    .split("")
+    .filter((letter) => ["a", "e", "i", "o", "u"].includes(letter)).length;
 
-catch(error){
-
-console.error(
-"Wordle Fetch Error:",
-error
-);
-
-}
-
-
-
-
-const word =
-answer.toLowerCase();
-
-
-
-const vowels =
-word
-.split("")
-.filter(
-letter =>
-["a","e","i","o","u"].includes(letter)
-)
-.length;
-
-
-
-const consonants =
-5-vowels;
-
-
-
-const startingLetter =
-answer.charAt(0);
-
-
-
-const endingLetter =
-answer.charAt(4);
-
-
-
-const hasRepeating =
-new Set(answer.split("")).size !== 5;
-
-
+const consonants = 5 - vowels;
+const startingLetter = answer.charAt(0);
+const endingLetter = answer.charAt(4);
+const hasRepeating = new Set(answer.split("")).size !== 5;
 ---
 
-
 <Layout
-
-title={`Wordle Hint Today ${currentDate} - Daily Clues & Answer`}
-
-description="Get today's Wordle hint, progressive clues, answer reveal, and solving strategies. Use spoiler-free Wordle hints before checking the final answer."
-
+    title={`Wordle Hint Today ${currentDate} - Daily Clues & Answer`}
+    description="Get today's Wordle hint, progressive clues, answer reveal, and solving strategies. Use spoiler-free Wordle hints before checking the final answer."
 >
-
-
-
-<main class="homepage">
-
-
-
-<Hero
-
-date={currentDate}
-
-puzzleNumber={puzzleNumber}
-
-/>
-
-
-
-
-<HintCards
-
-vowels={vowels}
-
-consonants={consonants}
-
-startingLetter={startingLetter}
-
-endingLetter={endingLetter}
-
-hasRepeating={hasRepeating}
-
-/>
-
-
-
-
-
-<section class="answer-preview">
-
-
-<h2>
-Today's Wordle Solution Preview
-</h2>
-
-
-<p>
-Reveal the answer only when you are ready.
-</p>
-
-
-<div class="word-tiles" aria-label="Wordle answer">
-
-{answer.split("").map((letter) => (
-<span class="word-tile">{letter}</span>
-))}
-
-</div>
-
-
-</section>
-
-
-
-
-
-<AnswerReveal
-
-answer={answer}
-
-puzzleNumber={puzzleNumber}
-
-/>
-
-
-
-
-
-<section class="seo-content">
-
-
-<h2>
-What is Wordle Hint Today?
-</h2>
-
-
-<p>
-
-Wordle Hint Today helps players solve the daily Wordle puzzle without immediately revealing the solution.
-
-Our progressive clues provide helpful information including vowel count, starting letters, ending letters, and word patterns.
-
-Players can choose how much assistance they need while keeping the challenge enjoyable.
-
-</p>
-
-
-
-
-
-<h2>
-How Does Our Wordle Hint System Work?
-</h2>
-
-
-<div class="steps">
-
-
-<div>
-
-<span>1</span>
-
-<h3>
-Start With Small Clues
-</h3>
-
-<p>
-Check simple hints like vowels and first letters.
-</p>
-
-</div>
-
-
-
-<div>
-
-<span>2</span>
-
-<h3>
-Analyze The Pattern
-</h3>
-
-<p>
-Use letter positions and word structure to narrow possibilities.
-</p>
-
-</div>
-
-
-
-
-<div>
-
-<span>3</span>
-
-<h3>
-Reveal When Needed
-</h3>
-
-<p>
-See the answer only if you need the final solution.
-</p>
-
-</div>
-
-
-
-</div>
-
-
-
-
-
-
-
-<h2>
-Why Use Wordle Hint Today?
-</h2>
-
-
-
-<div class="features">
-
-
-<div>
-
-<h3>
-Daily Updated
-</h3>
-
-<p>
-Fresh hints prepared for every new Wordle puzzle.
-</p>
-
-</div>
-
-
-<div>
-
-<h3>
-Spoiler Free
-</h3>
-
-<p>
-Control your experience with progressive clues.
-</p>
-
-</div>
-
-
-
-<div>
-
-<h3>
-Wordle History
-</h3>
-
-<p>
-Explore previous answers and puzzle information.
-</p>
-
-</div>
-
-
-</div>
-
-
-
-
-
-<h2>
-Wordle Strategy Tips
-</h2>
-
-
-<ul>
-
-<li>
-Use starting words with common vowels.
-</li>
-
-
-<li>
-Pay attention to repeated letters.
-</li>
-
-
-<li>
-Avoid guessing letters already eliminated.
-</li>
-
-
-<li>
-Practice with previous Wordle puzzles.
-</li>
-
-
-</ul>
-
-
-
-
-
-
-<section class="links">
-
-
-<h2>
-Explore More Wordle Tools
-</h2>
-
-
-<a href="/wordle-solver">
-Wordle Solver →
-</a>
-
-
-<a href="/past-answers">
-Past Wordle Answers →
-</a>
-
-
-<a href="/blog/best-wordle-starting-words">
-Best Starting Words Guide →
-</a>
-
-
-<a href="/blog/wordle-tips-and-tricks">
-Wordle Tips & Tricks →
-</a>
-
-
-
-</section>
-
-
-
-</section>
-
-
-
-
-
-
-<FAQ />
-
-
-
-</main>
-
-
-
-
+    <main class="homepage">
+        <Hero date={currentDate} puzzleNumber={puzzleNumber} />
+
+        <HintCards
+            vowels={vowels}
+            consonants={consonants}
+            startingLetter={startingLetter}
+            endingLetter={endingLetter}
+            hasRepeating={hasRepeating}
+        />
+
+        <section class="answer-preview">
+            <h2>Today's Wordle Solution Preview</h2>
+            <p>Reveal the answer only when you are ready.</p>
+            
+            <div class="word-tiles" aria-label="Wordle answer">
+                {answer.split("").map((letter) => (
+                    <span class="word-tile">{letter}</span>
+                ))}
+            </div>
+        </section>
+
+        <AnswerReveal answer={answer} puzzleNumber={puzzleNumber} />
+
+        <section class="seo-content">
+            <h2>What is Wordle Hint Today?</h2>
+            <p>
+                Wordle Hint Today helps players solve the daily Wordle puzzle without immediately revealing the solution.
+                Our progressive clues provide helpful information including vowel count, starting letters, ending letters, and word patterns.
+                Players can choose how much assistance they need while keeping the challenge enjoyable.
+            </p>
+
+            <h2>How Does Our Wordle Hint System Work?</h2>
+            <div class="steps">
+                <div>
+                    <span>1</span>
+                    <h3>Start With Small Clues</h3>
+                    <p>Check simple hints like vowels and first letters.</p>
+                </div>
+                <div>
+                    <span>2</span>
+                    <h3>Analyze The Pattern</h3>
+                    <p>Use letter positions and word structure to narrow possibilities.</p>
+                </div>
+                <div>
+                    <span>3</span>
+                    <h3>Reveal When Needed</h3>
+                    <p>See the answer only if you need the final solution.</p>
+                </div>
+            </div>
+
+            <h2>Why Use Wordle Hint Today?</h2>
+            <div class="features">
+                <div>
+                    <h3>Daily Updated</h3>
+                    <p>Fresh hints prepared for every new Wordle puzzle.</p>
+                </div>
+                <div>
+                    <h3>Spoiler Free</h3>
+                    <p>Control your experience with progressive clues.</p>
+                </div>
+                <div>
+                    <h3>Wordle History</h3>
+                    <p>Explore previous answers and puzzle information.</p>
+                </div>
+            </div>
+
+            <h2>Wordle Strategy Tips</h2>
+            <ul>
+                <li>Use starting words with common vowels.</li>
+                <li>Pay attention to repeated letters.</li>
+                <li>Avoid guessing letters already eliminated.</li>
+                <li>Practice with previous Wordle puzzles.</li>
+            </ul>
+
+            <section class="links">
+                <h2>Explore More Wordle Tools</h2>
+                <a href="/wordle-solver">Wordle Solver →</a>
+                <a href="/past-answers">Past Wordle Answers →</a>
+                <a href="/blog/best-wordle-starting-words">Best Starting Words Guide →</a>
+                <a href="/blog/wordle-tips-and-tricks">Wordle Tips & Tricks →</a>
+            </section>
+        </section>
+
+        <FAQ />
+    </main>
 </Layout>
 
-
-
-
 <style>
-
-
-.homepage{
-
-max-width:900px;
-
-margin:auto;
-
-padding:0 1rem;
-
-}
-
-
-
-.answer-preview{
-
-text-align:center;
-
-margin:4rem auto;
-
-padding:2rem;
-
-border-radius:24px;
-
-background:#fafafa;
-
-border:1px solid #ddd;
-
-}
-
-
-
-.answer-preview h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-}
-
-
-
-
-.seo-content{
-
-margin-top:4rem;
-
-line-height:1.8;
-
-}
-
-
-
-.seo-content h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-margin:3rem 0 1rem;
-
-color:#1a1a1b;
-
-}
-
-
-
-.steps{
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:1rem;
-
-}
-
-
-
-.steps div,
-.features div{
-
-border:1px solid #ddd;
-
-border-radius:18px;
-
-padding:1.5rem;
-
-background:white;
-
-transition:.3s;
-
-}
-
-
-
-.steps div:hover,
-.features div:hover{
-
-transform:translateY(-6px);
-
-box-shadow:
-0 15px 35px rgba(0,0,0,.08);
-
-}
-
-
-
-.steps span{
-
-display:inline-flex;
-
-width:35px;
-
-height:35px;
-
-align-items:center;
-
-justify-content:center;
-
-background:#1a1a1b;
-
-color:white;
-
-border-radius:50%;
-
-font-weight:900;
-
-}
-
-
-
-
-.features{
-
-display:grid;
-
-grid-template-columns:repeat(3,1fr);
-
-gap:1rem;
-
-}
-
-
-
-.links{
-
-display:flex;
-
-flex-direction:column;
-
-gap:1rem;
-
-}
-
-
-
-.links a{
-
-padding:1rem;
-
-border-radius:12px;
-
-background:#f5f5f5;
-
-font-weight:800;
-
-color:#1a1a1b;
-
-}
-
-
-
-
-
-@media(max-width:700px){
-
-
-.steps,
-.features{
-
-grid-template-columns:1fr;
-
-}
-
-
-
-.seo-content h2{
-
-font-size:1.6rem;
-
-}
-
-
-
-}
-
-
-
+    .homepage {
+        max-width: 900px;
+        margin: auto;
+        padding: 0 1rem;
+    }
+
+    .answer-preview {
+        text-align: center;
+        margin: 4rem auto;
+        padding: 2rem;
+        border-radius: 24px;
+        background: #fafafa;
+        border: 1px solid #ddd;
+    }
+
+    .answer-preview h2 {
+        font-family: Georgia, serif;
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    .seo-content {
+        margin-top: 4rem;
+        line-height: 1.8;
+    }
+
+    .seo-content h2 {
+        font-family: Georgia, serif;
+        font-size: 2rem;
+        font-weight: 900;
+        margin: 3rem 0 1rem;
+        color: #1a1a1b;
+    }
+
+    .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .steps div,
+    .features div {
+        border: 1px solid #ddd;
+        border-radius: 18px;
+        padding: 1.5rem;
+        background: white;
+        transition: 0.3s;
+    }
+
+    .steps div:hover,
+    .features div:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .steps span {
+        display: inline-flex;
+        width: 35px;
+        height: 35px;
+        align-items: center;
+        justify-content: center;
+        background: #1a1a1b;
+        color: white;
+        border-radius: 50%;
+        font-weight: 900;
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+
+    .links {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .links a {
+        padding: 1rem;
+        border-radius: 12px;
+        background: #f5f5f5;
+        font-weight: 800;
+        color: #1a1a1b;
+        transition: 0.2s;
+    }
+    
+    .links a:hover {
+        background: #e8e8e8;
+    }
+
+    @media (max-width: 700px) {
+        .steps,
+        .features {
+            grid-template-columns: 1fr;
+        }
+
+        .seo-content h2 {
+            font-size: 1.6rem;
+        }
+    }
 </style>

@@ -1,248 +1,155 @@
 ---
 const faqs = [
-	{
-		q: "What is today's Wordle hint?",
-		a: "Today's Wordle hint gives you progressive clues such as vowels, starting letters, ending letters, and word patterns to help solve the daily puzzle."
-	},
-	{
-		q: "How can I use Wordle hints without spoilers?",
-		a: "Use the clues step-by-step. Start with small hints and reveal the answer only when you need extra help."
-	},
-	{
-		q: "What time does Wordle reset every day?",
-		a: "Wordle usually refreshes with a new puzzle every day at midnight based on your local time zone."
-	},
-	{
-		q: "Where can I find previous Wordle answers?",
-		a: "You can explore our Wordle past answers archive to view previous solutions and puzzle history."
-	},
-	{
-		q: "Is Wordle free to play?",
-		a: "Yes, Wordle can be played free through the official game platform."
-	},
-	{
-		q: "How do Wordle hints help players?",
-		a: "Hints help players identify letter patterns, vowels, and positions while still keeping the solving experience enjoyable."
-	},
-	{
-		q: "Can I see today's Wordle answer?",
-		a: "Yes. Our answer reveal section allows you to check today's solution after trying the puzzle yourself."
-	},
-	{
-		q: "How do I improve my Wordle skills?",
-		a: "Use common starting words, track letter positions, avoid repeating mistakes, and practice with previous puzzles."
-	}
+    {
+        q: "What is today's Wordle hint?",
+        a: "Today's Wordle hint gives you progressive clues such as vowels, starting letters, ending letters, and word patterns to help solve the daily puzzle."
+    },
+    {
+        q: "How can I use Wordle hints without spoilers?",
+        a: "Use the clues step-by-step. Start with small hints and reveal the answer only when you need extra help."
+    },
+    {
+        q: "What time does Wordle reset every day?",
+        a: "Wordle usually refreshes with a new puzzle every day at midnight based on your local time zone."
+    },
+    {
+        q: "Where can I find previous Wordle answers?",
+        a: "You can explore our Wordle past answers archive to view previous solutions and puzzle history."
+    },
+    {
+        q: "Is Wordle free to play?",
+        a: "Yes, Wordle can be played free through the official game platform."
+    },
+    {
+        q: "How do Wordle hints help players?",
+        a: "Hints help players identify letter patterns, vowels, and positions while still keeping the solving experience enjoyable."
+    },
+    {
+        q: "Can I see today's Wordle answer?",
+        a: "Yes. Our answer reveal section allows you to check today's solution after trying the puzzle yourself."
+    },
+    {
+        q: "How do I improve my Wordle skills?",
+        a: "Use common starting words, track letter positions, avoid repeating mistakes, and practice with previous puzzles."
+    }
 ];
 
-
 const schema = {
-	"@context":"https://schema.org",
-	"@type":"FAQPage",
-	"mainEntity":
-	faqs.map(item=>({
-		"@type":"Question",
-		"name":item.q,
-		"acceptedAnswer":{
-			"@type":"Answer",
-			"text":item.a
-		}
-	}))
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((item) => ({
+        "@type": "Question",
+        "name": item.q,
+        "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.a
+        }
+    }))
 };
-
 ---
 
-<script 
-type="application/ld+json"
-set:html={JSON.stringify(schema)}
-/>
-
+<!-- is:inline zaroori hai taake Google FAQ snippet form mein utha sake -->
+<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
 
 <section class="faq-section">
+    <div class="heading">
+        <h2>Frequently Asked Questions</h2>
+        <p>Everything you need to know about Wordle hints and answers.</p>
+    </div>
 
-
-<div class="heading">
-
-<h2>
-	Frequently Asked Questions
-</h2>
-
-<p>
-	Everything you need to know about Wordle hints and answers.
-</p>
-
-</div>
-
-
-
-
-<div class="faq-list">
-
-
-{
-	faqs.map((item)=>(
-		
-		<details class="faq-item">
-
-			<summary>
-				{item.q}
-
-				<span>
-					+
-				</span>
-
-			</summary>
-
-
-			<p>
-				{item.a}
-			</p>
-
-
-		</details>
-
-	))
-}
-
-
-
-</div>
-
-
+    <div class="faq-list">
+        {faqs.map((item) => (
+            <details class="faq-item">
+                <summary>
+                    {item.q}
+                    <span>+</span>
+                </summary>
+                <p>{item.a}</p>
+            </details>
+        ))}
+    </div>
 </section>
 
-
-
-
 <style>
-
-
-.faq-section{
-
-	margin:4rem auto;
-
-}
-
-
-.heading{
-
-	text-align:center;
-
-	margin-bottom:2rem;
-
-}
-
-
-.heading h2{
-
-	font-family:Georgia,serif;
-
-	font-size:2rem;
-
-	font-weight:900;
-
-	color:#1a1a1b;
-
-}
-
-
-.heading p{
-
-	color:#666;
-
-	margin-top:.5rem;
-
-}
-
-
-
-
-.faq-list{
-
-	display:flex;
-
-	flex-direction:column;
-
-	gap:1rem;
-
-}
-
-
-
-.faq-item{
-
-	background:white;
-
-	border:1px solid #d3d6da;
-
-	border-radius:16px;
-
-	padding:1.2rem;
-
-	transition:.25s ease;
-
-}
-
-
-
-.faq-item:hover{
-
-	box-shadow:
-	0 10px 25px rgba(0,0,0,.06);
-
-}
-
-
-
-
-summary{
-
-	cursor:pointer;
-
-	list-style:none;
-
-	display:flex;
-
-	justify-content:space-between;
-
-	align-items:center;
-
-	font-weight:800;
-
-	color:#1a1a1b;
-
-}
-
-
-
-summary::-webkit-details-marker{
-
-	display:none;
-
-}
-
-
-
-summary span{
-
-	font-size:1.5rem;
-
-	color:#777;
-
-}
-
-
-
-.faq-item p{
-
-	margin-top:1rem;
-
-	line-height:1.7;
-
-	color:#555;
-
-}
-
-
-
-
+    .faq-section {
+        margin: 4rem auto;
+    }
+
+    .heading {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .heading h2 {
+        font-family: Georgia, serif;
+        font-size: 2rem;
+        font-weight: 900;
+        color: #1a1a1b;
+    }
+
+    .heading p {
+        color: #666;
+        margin-top: 0.5rem;
+    }
+
+    .faq-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .faq-item {
+        background: white;
+        border: 1px solid #d3d6da;
+        border-radius: 16px;
+        padding: 1.2rem;
+        transition: 0.25s ease;
+    }
+
+    .faq-item:hover {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    }
+
+    summary {
+        cursor: pointer;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 800;
+        color: #1a1a1b;
+    }
+
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    summary span {
+        font-size: 1.5rem;
+        color: #777;
+    }
+
+    .faq-item p {
+        margin-top: 1rem;
+        line-height: 1.7;
+        color: #555;
+    }
+
+    /* UI ENHANCEMENT: Smooth Sweep-In Animation */
+    details[open] summary ~ * {
+        animation: sweepIn 0.3s ease-in-out forwards;
+    }
+
+    @keyframes sweepIn {
+        0% {
+            opacity: 0;
+            margin-top: -10px;
+            transform: translateY(-10px);
+        }
+        100% {
+            opacity: 1;
+            margin-top: 0;
+            transform: translateY(0);
+        }
+    }
 </style>

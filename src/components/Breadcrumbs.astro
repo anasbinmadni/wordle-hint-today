@@ -1,0 +1,66 @@
+---
+interface Props {
+    items: {
+        name: string;
+        url?: string;
+    }[];
+}
+
+const { items } = Astro.props;
+
+// Auto-generate GEO/AEO Breadcrumb Schema
+const schema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": items.map((item, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "name": item.name,
+        "item": item.url ? `https://wordlehinttoday.online${item.url}` : undefined
+    }))
+};
+---
+
+<!-- is:inline for SEO Bots -->
+<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+<nav class="breadcrumb">
+    {items.map((item, index) => (
+        <>
+            {item.url ? (
+                <a href={item.url}>{item.name}</a>
+            ) : (
+                <strong>{item.name}</strong>
+            )}
+            
+            {index < items.length - 1 && <span>/</span>}
+        </>
+    ))}
+</nav>
+
+<style>
+    .breadcrumb {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb a {
+        font-weight: 700;
+        color: #1a1a1b;
+        text-decoration: none;
+        transition: 0.2s ease;
+    }
+
+    .breadcrumb a:hover {
+        color: #6aaa64;
+        text-decoration: underline;
+    }
+    
+    .breadcrumb strong {
+        color: #1a1a1b;
+    }
+</style>

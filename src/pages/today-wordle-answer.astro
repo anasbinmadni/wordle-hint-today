@@ -5,440 +5,206 @@ import WordleTiles from "../components/WordleTiles.astro";
 import FAQ from "../components/FAQ.astro";
 import { getCachedWordle } from "../lib/cache";
 
-
 export const prerender = false;
 
+// STRICT EST TIMEZONE FIX FOR WORDLE NYT API
+const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+const today = new Date(estTimeString);
 
-const today = new Date();
-
-const date =
-`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
-
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, "0");
+const day = String(today.getDate()).padStart(2, "0");
+const apiDate = `${year}-${month}-${day}`;
 
 let answer = "SLATE";
-
 let puzzleNumber = 0;
 
-
 try {
+    const data = await getCachedWordle(apiDate);
 
-	const data =
-	await getCachedWordle(date);
-
-
-	if(data){
-
-		answer = data.solution;
-
-		puzzleNumber =
-		data.days_since_launch;
-
-	}
-
-}
-catch(error){
-
-	console.error(error);
-
+    if (data) {
+        answer = data.solution;
+        puzzleNumber = data.days_since_launch;
+    }
+} catch (error) {
+    console.error(error);
 }
 
-
-
-const displayDate =
-today.toLocaleDateString(
-"en-US",
-{
-weekday:"long",
-month:"long",
-day:"numeric"
-}
-);
-
+const displayDate = today.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric"
+});
 ---
 
 <Layout
-
-title={`Wordle Answer Today - ${displayDate} Solution`}
-
-description="Find today's Wordle answer with the latest solution, puzzle number, and helpful information about today's daily word puzzle."
-
+    title={`Wordle Answer Today - ${displayDate} Solution`}
+    description="Find today's Wordle answer with the latest solution, puzzle number, and helpful information about today's daily word puzzle."
 >
-
-
-<SEO
-
-title="Wordle Answer Today"
-
-description="Get today's Wordle answer, solution, puzzle number, and daily Wordle information."
-
-canonical="/today-wordle-answer"
-
-/>
-
-
-
-<main class="page">
-
-
-<section class="hero">
-
-
-<h1>
-Wordle Answer Today
-</h1>
-
-
-<p>
-Need today's Wordle solution? Find the answer for puzzle #{puzzleNumber} below.
-</p>
-
-
-<div class="date">
-{displayDate}
-</div>
-
-
-</section>
-
-
-
-
-<section class="answer-card">
-
-
-<h2>
-Today's Wordle Answer
-</h2>
-
-
-<p class="warning">
-Spoiler alert: The answer is revealed below.
-</p>
-
-
-<WordleTiles
-word={answer}
-/>
-
-
-<div class="answer-text">
-
-The solution is:
-
-<strong>
-{answer}
-</strong>
-
-</div>
-
-
-</section>
-
-
-
-
-
-<section class="content-card">
-
-
-<h2>
-About Today's Wordle Solution
-</h2>
-
-
-<p>
-Every day, Wordle introduces a new five-letter word challenge. Our page provides the daily solution along with useful puzzle information.
-</p>
-
-
-<p>
-If you prefer solving independently, visit our Wordle hints page before revealing the answer.
-</p>
-
-
-<a href="/today-wordle-hint">
-Get Today's Hints →
-</a>
-
-
-</section>
-
-
-
-
-
-<section class="content-card">
-
-
-<h2>
-How To Use The Wordle Answer
-</h2>
-
-
-<ul>
-
-<li>
-Compare your guesses with the final solution.
-</li>
-
-<li>
-Learn new five-letter words.
-</li>
-
-<li>
-Understand patterns that can improve future games.
-</li>
-
-</ul>
-
-
-</section>
-
-
-
-
-<section class="content-card">
-
-
-<h2>
-Explore Previous Wordle Answers
-</h2>
-
-
-<p>
-Looking for older solutions? Browse our Wordle archive to explore previous puzzles and answers.
-</p>
-
-
-<a href="/past-answers">
-View Past Answers →
-</a>
-
-
-</section>
-
-
-
-<FAQ />
-
-
-</main>
-
-
-
+    <SEO
+        title="Wordle Answer Today"
+        description="Get today's Wordle answer, solution, puzzle number, and daily Wordle information."
+        canonical="/today-wordle-answer"
+    />
+
+    <main class="page">
+        <section class="hero">
+            <h1>Wordle Answer Today</h1>
+            <p>Need today's Wordle solution? Find the answer for puzzle #{puzzleNumber} below.</p>
+            <div class="date">{displayDate}</div>
+        </section>
+
+        <section class="answer-card">
+            <h2>Today's Wordle Answer</h2>
+            <p class="warning">Spoiler alert: The answer is revealed below.</p>
+            
+            <WordleTiles word={answer} />
+            
+            <div class="answer-text">
+                The solution is:
+                <strong>{answer}</strong>
+            </div>
+        </section>
+
+        <section class="content-card">
+            <h2>About Today's Wordle Solution</h2>
+            <p>
+                Every day, Wordle introduces a new five-letter word challenge. Our page provides the daily solution along with useful puzzle information.
+            </p>
+            <p>
+                If you prefer solving independently, visit our Wordle hints page before revealing the answer.
+            </p>
+            <a href="/today-wordle-hint">Get Today's Hints →</a>
+        </section>
+
+        <section class="content-card">
+            <h2>How To Use The Wordle Answer</h2>
+            <ul>
+                <li>Compare your guesses with the final solution.</li>
+                <li>Learn new five-letter words.</li>
+                <li>Understand patterns that can improve future games.</li>
+            </ul>
+        </section>
+
+        <section class="content-card">
+            <h2>Explore Previous Wordle Answers</h2>
+            <p>
+                Looking for older solutions? Browse our Wordle archive to explore previous puzzles and answers.
+            </p>
+            <a href="/past-answers">View Past Answers →</a>
+        </section>
+
+        <FAQ />
+    </main>
 </Layout>
 
-
-
-
 <style>
-
-
-.page{
-
-max-width:900px;
-
-margin:auto;
-
-padding:3rem 1rem;
-
-}
-
-
-
-.hero{
-
-text-align:center;
-
-margin-bottom:3rem;
-
-}
-
-
-
-.hero h1{
-
-font-family:Georgia,serif;
-
-font-size:3.3rem;
-
-font-weight:900;
-
-}
-
-
-
-.hero p{
-
-color:#666;
-
-font-size:1.15rem;
-
-}
-
-
-
-.date{
-
-margin-top:1rem;
-
-font-weight:700;
-
-color:#6aaa64;
-
-}
-
-
-
-
-.answer-card{
-
-
-background:white;
-
-border:2px solid #d3d6da;
-
-border-radius:24px;
-
-padding:3rem 2rem;
-
-text-align:center;
-
-margin-bottom:2rem;
-
-box-shadow:
-0 12px 30px rgba(0,0,0,.05);
-
-}
-
-
-
-.answer-card h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-}
-
-
-
-.warning{
-
-color:#c9b458;
-
-font-weight:700;
-
-margin:1rem;
-
-}
-
-
-
-.answer-text{
-
-margin-top:2rem;
-
-font-size:1.2rem;
-
-}
-
-
-
-.answer-text strong{
-
-display:block;
-
-font-size:2rem;
-
-margin-top:.5rem;
-
-letter-spacing:.15em;
-
-}
-
-
-
-
-.content-card{
-
-background:white;
-
-border:1px solid #d3d6da;
-
-border-radius:22px;
-
-padding:2rem;
-
-margin-bottom:2rem;
-
-}
-
-
-
-.content-card h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-margin-bottom:1rem;
-
-}
-
-
-
-.content-card p{
-
-line-height:1.8;
-
-color:#444;
-
-}
-
-
-
-.content-card a{
-
-font-weight:900;
-
-color:#1a1a1b;
-
-}
-
-
-
-li{
-
-margin-bottom:.8rem;
-
-}
-
-
-
-@media(max-width:700px){
-
-
-.hero h1{
-
-font-size:2.3rem;
-
-}
-
-
-
-.answer-card{
-
-padding:2rem 1rem;
-
-}
-
-
-}
-
-
+    .page {
+        max-width: 900px;
+        margin: auto;
+        padding: 3rem 1rem;
+    }
+
+    .hero {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .hero h1 {
+        font-family: Georgia, serif;
+        font-size: 3.3rem;
+        font-weight: 900;
+    }
+
+    .hero p {
+        color: #666;
+        font-size: 1.15rem;
+    }
+
+    .date {
+        margin-top: 1rem;
+        font-weight: 700;
+        color: #6aaa64;
+    }
+
+    .answer-card {
+        background: white;
+        border: 2px solid #d3d6da;
+        border-radius: 24px;
+        padding: 3rem 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .answer-card h2 {
+        font-family: Georgia, serif;
+        font-size: 2rem;
+        font-weight: 900;
+    }
+
+    .warning {
+        color: #c9b458;
+        font-weight: 700;
+        margin: 1rem;
+    }
+
+    .answer-text {
+        margin-top: 2rem;
+        font-size: 1.2rem;
+    }
+
+    .answer-text strong {
+        display: block;
+        font-size: 2rem;
+        margin-top: 0.5rem;
+        letter-spacing: 0.15em;
+    }
+
+    .content-card {
+        background: white;
+        border: 1px solid #d3d6da;
+        border-radius: 22px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .content-card h2 {
+        font-family: Georgia, serif;
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+    }
+
+    .content-card p {
+        line-height: 1.8;
+        color: #444;
+        margin-bottom: 1rem;
+    }
+
+    .content-card a {
+        font-weight: 900;
+        color: #1a1a1b;
+        transition: color 0.2s;
+    }
+    
+    .content-card a:hover {
+        color: #6aaa64;
+    }
+
+    li {
+        margin-bottom: 0.8rem;
+        line-height: 1.8;
+        color: #444;
+    }
+
+    @media (max-width: 700px) {
+        .hero h1 {
+            font-size: 2.3rem;
+        }
+
+        .answer-card {
+            padding: 2rem 1rem;
+        }
+    }
 </style>

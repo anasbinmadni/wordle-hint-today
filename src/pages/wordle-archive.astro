@@ -2,449 +2,132 @@
 import Layout from "../layouts/Layout.astro";
 import SEO from "../components/SEO.astro";
 
-
-const currentDate = new Date();
+// STRICT EST TIMEZONE FIX FOR LOOP
+const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
+const baseDate = new Date(estTimeString);
 
 const archives = [];
 
+for (let i = 1; i <= 30; i++) {
+    // Har iteration ke liye baseDate ka naya instance banayen
+    const date = new Date(baseDate);
+    date.setDate(baseDate.getDate() - i);
 
-for(let i = 1; i <= 30; i++){
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-	const date = new Date();
-
-	date.setDate(date.getDate() - i);
-
-
-	const year = date.getFullYear();
-
-	const month =
-	String(date.getMonth()+1).padStart(2,"0");
-
-	const day =
-	String(date.getDate()).padStart(2,"0");
-
-
-	archives.push({
-
-		date:
-		date.toLocaleDateString(
-		"en-US",
-		{
-			month:"long",
-			day:"numeric",
-			year:"numeric"
-		}
-		),
-
-		url:
-		`/wordle-hint-${1000-i}-${year}-${month}-${day}`
-
-	});
-
+    archives.push({
+        date: date.toLocaleDateString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        }),
+        url: `/wordle-hint-${1000 - i}-${year}-${month}-${day}` // Assuming puzzle 1000 logic is a placeholder
+    });
 }
 
-
+// CollectionPage Schema for SEO
+const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Wordle Archive - Past Wordle Answers",
+    "description": "Explore previous Wordle answers and puzzle history. Browse the last 30 days of Wordle solutions.",
+    "url": "https://wordlehinttoday.online/wordle-archive"
+};
 ---
 
 <Layout
-
-title="Wordle Archive - Past Wordle Answers & History"
-
-description="Browse the Wordle archive with previous answers, puzzle history, and daily solutions from past Wordle games."
-
+    title="Wordle Archive - Past Wordle Answers & History"
+    description="Browse the Wordle archive with previous answers, puzzle history, and daily solutions from past Wordle games."
 >
-
-
-
-<SEO
-
-title="Wordle Archive - Past Wordle Answers"
-
-description="Explore previous Wordle answers and puzzle history. Browse old Wordle solutions and daily puzzle archives."
-
-canonical="/wordle-archive"
-
-/>
-
-
-
-
-<main class="page">
-
-
-<section class="hero">
-
-
-<h1>
-Wordle Archive
-</h1>
-
-
-<p>
-Explore previous Wordle answers, puzzle history, and past daily solutions.
-</p>
-
-
-</section>
-
-
-
-
-<section class="card">
-
-
-<h2>
-Past Wordle Answers
-</h2>
-
-
-<p>
-
-Looking for an older Wordle solution?
-
-Browse our archive of previous puzzles and revisit daily Wordle answers.
-
-</p>
-
-
-</section>
-
-
-
-
-
-<section class="archive-grid">
-
-
-{
-
-archives.map((item,index)=>(
-
-<a
-
-href={item.url}
-
-class="archive-card"
-
->
-
-<span>
-Wordle #{1000-index}
-</span>
-
-
-<strong>
-{item.date}
-</strong>
-
-
-<span class="arrow">
-→
-</span>
-
-
-</a>
-
-))
-
-}
-
-
-
-</section>
-
-
-
-
-<section class="card">
-
-
-<h2>
-Why Use The Wordle Archive?
-</h2>
-
-
-<ul>
-
-<li>
-Review previous Wordle solutions.</li>
-
-<li>
-Improve your solving strategy.</li>
-
-<li>
-Study common five-letter words.</li>
-
-<li>
-Compare puzzle difficulty.</li>
-
-</ul>
-
-
-</section>
-
-
-
-
-
-<section class="card">
-
-
-<h2>
-Explore More Wordle Tools
-</h2>
-
-
-<div class="links">
-
-
-<a href="/wordle-solver">
-Wordle Solver
-</a>
-
-
-<a href="/today-wordle-hint">
-Today's Hints
-</a>
-
-
-<a href="/today-wordle-answer">
-Today's Answer
-</a>
-
-
-</div>
-
-
-</section>
-
-
-
-</main>
-
-
-
+    <SEO
+        title="Wordle Archive - Past Wordle Answers"
+        description="Explore previous Wordle answers and puzzle history. Browse old Wordle solutions and daily puzzle archives."
+        canonical="/wordle-archive"
+    />
+
+    <!-- is:inline added for SEO bots -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+    <main class="page">
+        <section class="hero">
+            <h1>Wordle Archive</h1>
+            <p>
+                Explore previous Wordle answers, puzzle history, and past daily solutions.
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Past Wordle Answers</h2>
+            <p>
+                Looking for an older Wordle solution? 
+                Browse our recent archive of previous puzzles and revisit daily Wordle answers. 
+                Use this historical data to study patterns, understand difficulty trends, and improve your daily game.
+            </p>
+        </section>
+
+        <section class="archive-grid">
+            {archives.map((item, index) => (
+                <a href={item.url} class="archive-card">
+                    <span>Wordle #{1000 - index}</span>
+                    <strong>{item.date}</strong>
+                    <span class="arrow">→</span>
+                </a>
+            ))}
+        </section>
+
+        <section class="card">
+            <h2>Why Use The Wordle Archive?</h2>
+            <ul>
+                <li><strong>Review previous solutions:</strong> Check if a word you are guessing has already been the answer.</li>
+                <li><strong>Improve your solving strategy:</strong> Analyze which vowels and consonants are most frequent.</li>
+                <li><strong>Study common five-letter words:</strong> Expand your vocabulary with legitimate dictionary words.</li>
+                <li><strong>Compare puzzle difficulty:</strong> See how today's puzzle stacks up against last week's challenges.</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Explore More Wordle Tools</h2>
+            <div class="links">
+                <a href="/wordle-solver">Wordle Solver</a>
+                <a href="/today-wordle-hint">Today's Hints</a>
+                <a href="/today-wordle-answer">Today's Answer</a>
+            </div>
+        </section>
+    </main>
 </Layout>
 
-
-
 <style>
-
-
-.page{
-
-max-width:900px;
-
-margin:auto;
-
-padding:3rem 1rem;
-
-}
-
-
-
-.hero{
-
-text-align:center;
-
-margin-bottom:3rem;
-
-}
-
-
-.hero h1{
-
-font-family:Georgia,serif;
-
-font-size:3.5rem;
-
-font-weight:900;
-
-}
-
-
-
-.hero p{
-
-font-size:1.2rem;
-
-color:#666;
-
-}
-
-
-
-.card{
-
-background:white;
-
-border:1px solid #d3d6da;
-
-border-radius:24px;
-
-padding:2rem;
-
-margin-bottom:2rem;
-
-}
-
-
-
-.card h2{
-
-font-family:Georgia,serif;
-
-font-size:2rem;
-
-font-weight:900;
-
-margin-bottom:1rem;
-
-}
-
-
-
-.card p{
-
-line-height:1.8;
-
-color:#444;
-
-}
-
-
-
-.archive-grid{
-
-display:grid;
-
-grid-template-columns:repeat(2,1fr);
-
-gap:1rem;
-
-}
-
-
-
-.archive-card{
-
-position:relative;
-
-background:white;
-
-border:1px solid #d3d6da;
-
-padding:1.4rem;
-
-border-radius:16px;
-
-display:flex;
-
-flex-direction:column;
-
-gap:.4rem;
-
-transition:.25s;
-
-}
-
-
-
-.archive-card:hover{
-
-transform:translateY(-4px);
-
-box-shadow:
-0 10px 25px rgba(0,0,0,.08);
-
-}
-
-
-
-.archive-card span:first-child{
-
-font-weight:900;
-
-color:#1a1a1b;
-
-}
-
-
-
-.archive-card strong{
-
-color:#666;
-
-}
-
-
-
-.arrow{
-
-position:absolute;
-
-right:20px;
-
-top:50%;
-
-}
-
-
-
-.links{
-
-display:flex;
-
-gap:1rem;
-
-flex-wrap:wrap;
-
-}
-
-
-
-.links a{
-
-background:#1a1a1b;
-
-color:white;
-
-padding:.8rem 1.2rem;
-
-border-radius:10px;
-
-font-weight:900;
-
-}
-
-
-
-li{
-
-margin-bottom:.8rem;
-
-}
-
-
-
-@media(max-width:700px){
-
-
-.hero h1{
-
-font-size:2.4rem;
-
-}
-
-
-.archive-grid{
-
-grid-template-columns:1fr;
-
-}
-
-
-}
-
-
+    .page { max-width: 900px; margin: auto; padding: 3rem 1rem; }
+    
+    .hero { text-align: center; margin-bottom: 3rem; }
+    .hero h1 { font-family: Georgia, serif; font-size: 3.5rem; font-weight: 900; color: #1a1a1b; }
+    .hero p { font-size: 1.2rem; color: #666; margin-top: 1rem; }
+    
+    .card { background: white; border: 1px solid #d3d6da; border-radius: 24px; padding: 2.5rem; margin-bottom: 2.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+    .card h2 { font-family: Georgia, serif; font-size: 2rem; font-weight: 900; margin-bottom: 1rem; color: #1a1a1b; }
+    .card p { line-height: 1.8; color: #444; }
+    
+    .archive-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 2.5rem; }
+    
+    .archive-card { position: relative; background: white; border: 1px solid #d3d6da; padding: 1.5rem; border-radius: 16px; display: flex; flex-direction: column; gap: 0.5rem; transition: 0.3s ease; text-decoration: none; }
+    .archive-card:hover { transform: translateY(-4px); border-color: #6aaa64; box-shadow: 0 10px 25px rgba(106, 170, 100, 0.15); }
+    .archive-card span:first-child { font-weight: 900; color: #1a1a1b; font-size: 1.1rem; }
+    .archive-card strong { color: #666; font-weight: 500; }
+    
+    .arrow { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #1a1a1b; font-weight: bold; font-size: 1.2rem; transition: 0.2s; }
+    .archive-card:hover .arrow { color: #6aaa64; right: 15px; }
+    
+    .links { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+    .links a { background: #1a1a1b; color: white; padding: 1rem 1.5rem; border-radius: 12px; font-weight: 900; text-decoration: none; transition: 0.2s; }
+    .links a:hover { background: #333; transform: translateY(-2px); }
+    
+    li { margin-bottom: 0.8rem; line-height: 1.7; color: #444; }
+    
+    @media (max-width: 700px) {
+        .hero h1 { font-size: 2.4rem; }
+        .archive-grid { grid-template-columns: 1fr; }
+        .card { padding: 1.5rem; }
+    }
 </style>

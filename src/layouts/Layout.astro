@@ -1,239 +1,101 @@
 ---
 import '../styles/global.css';
-
 import SEO from '../components/SEO.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-
 interface Props {
-	title: string;
-	description?: string;
+    title: string;
+    description?: string;
 }
 
-
 const {
-	title,
-	description = "Daily Wordle hints, clues and answers."
+    title,
+    description = "Daily Wordle hints, clues and answers."
 } = Astro.props;
-
 
 // Automatic Canonical URL
 const canonical = new URL(
-	Astro.url.pathname,
-	Astro.site ?? "https://wordlehinttoday.online"
+    Astro.url.pathname,
+    Astro.site ?? "https://wordlehinttoday.online"
 ).href;
 
-
-
 const websiteSchema = {
-
-"@context":"https://schema.org",
-
-"@graph":[
-
-
-{
-"@type":"Organization",
-
-"@id":"https://wordlehinttoday.online/#organization",
-
-"name":"Wordle Hint Today",
-
-"url":"https://wordlehinttoday.online",
-
-"logo":{
-
-"@type":"ImageObject",
-
-"url":"https://wordlehinttoday.online/logo.webp"
-
-}
-
-},
-
-
-
-{
-"@type":"WebSite",
-
-"@id":"https://wordlehinttoday.online/#website",
-
-"url":"https://wordlehinttoday.online",
-
-"name":"Wordle Hint Today",
-
-"description":
-"Daily Wordle hints, clues, answers and solving guides.",
-
-
-"publisher":{
-
-"@id":"https://wordlehinttoday.online/#organization"
-
-},
-
-
-"potentialAction":{
-
-"@type":"SearchAction",
-
-"target":{
-
-"@type":"EntryPoint",
-
-"urlTemplate":
-"https://wordlehinttoday.online/search?q={search_term_string}"
-
-},
-
-"query-input":
-"required name=search_term_string"
-
-}
-
-
-}
-
-]
-
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "Organization",
+            "@id": "https://wordlehinttoday.online/#organization",
+            "name": "Wordle Hint Today",
+            "url": "https://wordlehinttoday.online",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://wordlehinttoday.online/logo.webp"
+            }
+        },
+        {
+            "@type": "WebSite",
+            "@id": "https://wordlehinttoday.online/#website",
+            "url": "https://wordlehinttoday.online",
+            "name": "Wordle Hint Today",
+            "description": "Daily Wordle hints, clues, answers and solving guides.",
+            "publisher": {
+                "@id": "https://wordlehinttoday.online/#organization"
+            },
+            "potentialAction": {
+                "@type": "SearchAction",
+                "target": {
+                    "@type": "EntryPoint",
+                    "urlTemplate": "https://wordlehinttoday.online/search?q={search_term_string}"
+                },
+                "query-input": "required name=search_term_string"
+            }
+        }
+    ]
 };
-
 ---
 
 <!doctype html>
-
 <html lang="en" class="scroll-smooth">
-
-
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <SEO title={title} description={description} canonical={canonical} />
 
+    <!-- is:inline added for SEO bots -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 
-<meta charset="UTF-8" />
+    <link rel="icon" type="image/webp" href="/logo.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Karnak:wght@400;700&display=swap" rel="stylesheet" />
 
+    <style>
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: #1a1a1b;
+            background: white;
+            -webkit-font-smoothing: antialiased;
+        }
 
-<meta 
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
+        .nyt-title {
+            font-family: 'Karnak', Georgia, serif;
+        }
 
-
-<SEO
-
-title={title}
-
-description={description}
-
-canonical={canonical}
-
-/>
-
-
-
-<script
-type="application/ld+json"
-set:html={JSON.stringify(websiteSchema)}
-/>
-
-
-
-<link
-rel="icon"
-type="image/webp"
-href="/logo.webp"
-/>
-
-
-
-<link
-rel="preconnect"
-href="https://fonts.googleapis.com"
-/>
-
-
-<link
-rel="preconnect"
-href="https://fonts.gstatic.com"
-crossorigin
-/>
-
-
-
-<link
-
-href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700;800&family=Karnak:wght@400;700&display=swap"
-
-rel="stylesheet"
-
-/>
-
-
-
-<style>
-
-
-body {
-
-font-family:
-'Open Sans',
-sans-serif;
-
-color:#1a1a1b;
-
-background:white;
-
--webkit-font-smoothing:antialiased;
-
-}
-
-
-
-.nyt-title {
-
-font-family:
-'Karnak',
-Georgia,
-serif;
-
-}
-
-
-
-html {
-
-scroll-behavior:smooth;
-
-}
-
-
-</style>
-
-
-
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 
-
-
 <body class="min-h-screen flex flex-col">
+    <Header />
+    
+    <main class="flex-grow">
+        <slot />
+    </main>
 
-
-<Header />
-
-
-
-<main class="flex-grow">
-
-<slot />
-
-</main>
-
-
-
-<Footer />
-
-
-
+    <Footer />
 </body>
-
-
 </html>

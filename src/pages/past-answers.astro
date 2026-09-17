@@ -52,7 +52,7 @@ word.toLowerCase().split("");
 
 const vowels =
 letters.filter(
-l=>["a","e","i","o","u"].includes(l)
+(l: string)=>["a","e","i","o","u"].includes(l)
 ).length;
 
 
@@ -232,7 +232,7 @@ answer.toLowerCase().split("");
 
 const vowelCount =
 letters.filter(
-l=>["a","e","i","o","u"].includes(l)
+(l: string)=>["a","e","i","o","u"].includes(l)
 ).length;
 
 
@@ -381,7 +381,7 @@ const schema={
 
 };
 
-------
+---
 
 <Layout
 
@@ -537,7 +537,7 @@ Object.entries(groupedMonths)
 
 {
 
-items.map(item=>(
+(items ?? []).map(item=>(
 
 
 <article class="card">

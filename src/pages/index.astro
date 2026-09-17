@@ -4,7 +4,6 @@ import Layout from "../layouts/Layout.astro";
 import Hero from "../components/Hero.astro";
 import HintCards from "../components/HintCards.astro";
 import AnswerReveal from "../components/AnswerReveal.astro";
-import WordTiles from "../components/WordTiles.astro";
 import FAQ from "../components/FAQ.astro";
 
 import { getCachedWordle } from "../lib/cache";
@@ -171,13 +170,13 @@ Reveal the answer only when you are ready.
 </p>
 
 
-<WordTiles
+<div class="word-tiles" aria-label="Wordle answer">
 
-word={answer}
+{answer.split("").map((letter) => (
+<span class="word-tile">{letter}</span>
+))}
 
-animate={true}
-
-/>
+</div>
 
 
 </section>

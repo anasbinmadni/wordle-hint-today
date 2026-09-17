@@ -19,7 +19,7 @@ export async function getCachedWordle(
 				"cloudflare:workers"
 			);
 
-			kv = env.WORDLE_CACHE;
+			kv = (env as { WORDLE_CACHE?: any }).WORDLE_CACHE;
 
 
 		}

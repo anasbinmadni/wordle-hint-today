@@ -1,7 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import SEO from "../components/SEO.astro";
-import SolverTool from "../components/SolverTool.astro";
 import FAQ from "../components/FAQ.astro";
 ---
 
@@ -20,6 +19,8 @@ description="Use our free Wordle solver to find possible five-letter words. Ente
 title="Wordle Solver - Free Word Finder Tool"
 
 description="Solve Wordle puzzles with our free Wordle solver. Find possible five-letter words using letter patterns and excluded letters."
+
+canonical="/wordle-solver"
 
 />
 
@@ -45,7 +46,34 @@ Need help finding a Wordle word? Use our free solver to discover possible answer
 
 
 
-<SolverTool />
+<section class="solver card">
+<h2>Find Possible Words</h2>
+<form id="solver-form">
+<label for="pattern">Known letters (use _ for unknown positions)</label>
+<input id="pattern" name="pattern" maxlength="5" pattern="[a-zA-Z_]{5}" placeholder="_ _ _ _ _" required />
+<label for="excluded">Letters not in the answer</label>
+<input id="excluded" name="excluded" maxlength="26" placeholder="e.g. a, r, t" />
+<button type="submit">Find Words</button>
+</form>
+<p id="solver-result" aria-live="polite"></p>
+</section>
+
+<script>
+const form = document.querySelector<HTMLFormElement>("#solver-form");
+const result = document.querySelector<HTMLParagraphElement>("#solver-result");
+
+form?.addEventListener("submit", (event) => {
+	event.preventDefault();
+	const data = new FormData(form);
+	const pattern = String(data.get("pattern") || "").replace(/\s/g, "").toLowerCase();
+	const excluded = String(data.get("excluded") || "").replace(/[^a-z]/gi, "").toLowerCase();
+	if (!/^[a-z_]{5}$/.test(pattern)) {
+		result!.textContent = "Enter exactly five letters, using _ for unknown positions.";
+		return;
+	}
+	result!.textContent = `Look for five-letter words matching ${pattern}${excluded ? ` and excluding ${excluded}` : ""}.`;
+});
+</script>
 
 
 

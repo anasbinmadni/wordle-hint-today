@@ -47,14 +47,84 @@ const consonants = 5 - vowels;
 const startingLetter = answer.charAt(0);
 const endingLetter = answer.charAt(4);
 const hasRepeating = new Set(answer.split("")).size !== 5;
+
+// CALCULATE DIFFICULTY FOR WIDGET
+const lettersArr = word.split("");
+const rareLettersCount = lettersArr.filter((letter) => ["q", "z", "j", "x", "v", "k", "w"].includes(letter)).length;
+
+let difficultyScore = 4;
+if (hasRepeating) difficultyScore += 2;
+difficultyScore += rareLettersCount;
+if (vowels <= 1) difficultyScore += 1;
+if (vowels >= 3) difficultyScore -= 1;
+
+difficultyScore = Math.min(10, Math.max(1, difficultyScore));
+
+let difficultyName = "Medium";
+let difficultyColorClass = "diff-medium";
+
+if (difficultyScore >= 7) {
+    difficultyName = "Hard";
+    difficultyColorClass = "diff-hard";
+}
+if (difficultyScore <= 4) {
+    difficultyName = "Easy";
+    difficultyColorClass = "diff-easy";
+}
+
+// FAQ SCHEMA FOR RICH SNIPPETS
+const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What is the Wordle answer today?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `Today's Wordle answer for puzzle #${puzzleNumber} can be revealed safely using our interactive spoiler-free tool on the homepage.`
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How does the Wordle Hint system work?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Our system provides progressive clues like vowel count, starting letters, and difficulty rating so you can solve the puzzle yourself without seeing the full answer right away."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Is today's Wordle hard?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": `Based on our algorithm, today's puzzle is rated as ${difficultyName} difficulty (${difficultyScore}/10).`
+            }
+        }
+    ]
+};
 ---
 
 <Layout
     title={`Wordle Hint Today ${currentDate} - Daily Clues & Answer`}
     description="Get today's Wordle hint, progressive clues, answer reveal, and solving strategies. Use spoiler-free Wordle hints before checking the final answer."
 >
+    <!-- Inject FAQ Schema -->
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
     <main class="homepage fade-in-up">
         <Hero date={currentDate} puzzleNumber={puzzleNumber} />
+
+        <!-- NEW DIFFICULTY WIDGET -->
+        <div class="difficulty-widget-wrapper">
+            <div class={`difficulty-widget ${difficultyColorClass}`}>
+                <div class="widget-content">
+                    <span class="widget-label">Today's Difficulty</span>
+                    <strong class="widget-value">{difficultyName} ({difficultyScore}/10)</strong>
+                </div>
+                <a href="/today-wordle-difficulty" class="widget-btn">View Detailed Analysis →</a>
+            </div>
+        </div>
 
         <div class="interactive-section">
             <HintCards
@@ -94,23 +164,63 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
                         <tbody>
                             <tr>
                                 <td><strong>Spoiler-Free</strong></td>
-                                <td><span class="check">✓ Interactive Hide/Reveal</span></td>
-                                <td><span class="cross">✗ Answer is often visible in text</span></td>
+                                <td>
+                                    <span class="check-box">
+                                        <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                        Interactive Hide/Reveal
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="cross-box">
+                                        <svg class="cross-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                        Answer is often visible in text
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>First Letter Clue</strong></td>
-                                <td><span class="check">✓ Yes</span></td>
-                                <td><span class="check">✓ Yes</span></td>
+                                <td>
+                                    <span class="check-box">
+                                        <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                        Yes
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="check-box">
+                                        <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                        Yes
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>Difficulty Rating</strong></td>
-                                <td><span class="check">✓ Custom Algorithm</span></td>
-                                <td><span class="cross">✗ Rare</span></td>
+                                <td>
+                                    <span class="check-box">
+                                        <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                        Custom Algorithm
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="cross-box">
+                                        <svg class="cross-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                        Rare
+                                    </span>
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>Past Archives</strong></td>
-                                <td><span class="check">✓ 2000+ Puzzles Database</span></td>
-                                <td><span class="cross">✗ Limited to recent articles</span></td>
+                                <td>
+                                    <span class="check-box">
+                                        <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                                        2000+ Puzzles Database
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="cross-box">
+                                        <svg class="cross-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                        Limited to recent articles
+                                    </span>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -214,6 +324,58 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
         font-family: 'Open Sans', sans-serif;
     }
 
+    /* Difficulty Widget Styles */
+    .difficulty-widget-wrapper {
+        margin: -1rem auto 2rem;
+        max-width: 600px;
+    }
+    .difficulty-widget {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.2rem 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 2px solid transparent;
+        transition: transform 0.2s ease;
+    }
+    .difficulty-widget:hover {
+        transform: translateY(-2px);
+    }
+    .widget-content {
+        display: flex;
+        flex-direction: column;
+    }
+    .widget-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        opacity: 0.8;
+    }
+    .widget-value {
+        font-size: 1.4rem;
+        font-family: 'Georgia', serif;
+    }
+    .widget-btn {
+        background: rgba(0,0,0,0.1);
+        color: inherit;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.95rem;
+        transition: background 0.2s;
+    }
+    .widget-btn:hover {
+        background: rgba(0,0,0,0.2);
+    }
+
+    .diff-easy { background: #e8f5e9; color: #2e7d32; border-color: #c8e6c9; }
+    .diff-medium { background: #fff8e1; color: #b28704; border-color: #ffecb3; }
+    .diff-hard { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
+
+
     .interactive-section {
         margin: 2rem 0;
     }
@@ -258,8 +420,11 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
     .comp-table td { padding: 1rem; border-bottom: 1px solid #eaeced; color: #555; font-size: 0.95rem; }
     .comp-table tr:last-child td { border-bottom: none; }
     .comp-table strong { color: #1a1a1b; }
-    .check { color: #6aaa64; font-weight: 700; }
-    .cross { color: #d9534f; font-weight: 700; }
+    
+    .check-box { display: inline-flex; align-items: center; gap: 0.4rem; color: #388e3c; font-weight: 700; }
+    .cross-box { display: inline-flex; align-items: center; gap: 0.4rem; color: #d32f2f; font-weight: 700; }
+    .check-icon { width: 18px; height: 18px; color: #6aaa64; }
+    .cross-icon { width: 18px; height: 18px; color: #d9534f; }
 
     /* Step Cards */
     .steps-container, .features-container {
@@ -403,6 +568,12 @@ const hasRepeating = new Set(answer.split("")).size !== 5;
 
         .strategy-box, .competitor-table-box {
             padding: 2rem 1.5rem;
+        }
+
+        .difficulty-widget {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
         }
     }
 </style>

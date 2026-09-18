@@ -31,6 +31,8 @@ const isCurrentMonth = (numYear === today.getFullYear() && numMonth === today.ge
 const limitDay = isCurrentMonth ? today.getDate() : daysInMonth;
 
 const puzzles = [];
+let easyCount = 0;
+let hardCount = 0;
 
 // Fetch data for the specific month
 for (let d = 1; d <= limitDay; d++) {
@@ -53,8 +55,16 @@ for (let d = 1; d <= limitDay; d++) {
             
             let difficulty = "Medium";
             let diffClass = "medium";
-            if (score >= 7) { difficulty = "Hard"; diffClass = "hard"; }
-            if (score <= 4) { difficulty = "Easy"; diffClass = "easy"; }
+            if (score >= 7) { 
+                difficulty = "Hard"; 
+                diffClass = "hard"; 
+                hardCount++;
+            }
+            if (score <= 4) { 
+                difficulty = "Easy"; 
+                diffClass = "easy";
+                easyCount++; 
+            }
 
             puzzles.push({
                 day: dayStr,
@@ -73,6 +83,12 @@ for (let d = 1; d <= limitDay; d++) {
 
 // Reverse so newest is on top
 puzzles.reverse();
+
+// DYNAMIC SEO CONTENT GENERATION
+const totalPuzzles = puzzles.length;
+const dynamicIntroText = totalPuzzles > 0 
+    ? `Welcome to the complete Wordle archive for ${monthName} ${year}. During this month, players faced a total of ${totalPuzzles} puzzles. Based on our linguistic difficulty algorithm, there were ${hardCount} exceptionally hard words that broke many daily streaks, and ${easyCount} easier puzzles with common vowel patterns. Browse the grid below to view specific hints, letter patterns, and the final solution for any day in ${monthName}.`
+    : `Data for ${monthName} ${year} is currently being compiled or is not yet available.`;
 
 const schema = {
     "@context": "https://schema.org",
@@ -106,9 +122,12 @@ const schema = {
 
         <header class="hero">
             <h1>Wordle Answers for {monthName} {year}</h1>
-            <p>
-                Found {puzzles.length} puzzles for this month. Select any puzzle to view detailed hints, word analysis, and the final solution.
-            </p>
+            
+            <!-- NEW DYNAMIC CONTENT BLOCK (Replaces thin/duplicate text) -->
+            <div class="dynamic-seo-text">
+                <p>{dynamicIntroText}</p>
+            </div>
+            
         </header>
 
         <div class="cards-grid">
@@ -150,7 +169,10 @@ const schema = {
 
     .hero { text-align: center; margin-bottom: 3rem; }
     .hero h1 { font-family: 'Georgia', serif; font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; color: #1a1a1b; margin-bottom: 1rem; }
-    .hero p { color: #666; font-size: 1.1rem; }
+    
+    /* Dynamic SEO Text Styling */
+    .dynamic-seo-text { max-width: 800px; margin: 1.5rem auto; background: #fdfbf7; padding: 1.5rem; border-left: 4px solid #c9b458; border-radius: 0 12px 12px 0; text-align: left; }
+    .dynamic-seo-text p { color: #444; font-size: 1.05rem; line-height: 1.8; margin: 0; }
 
     .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
     

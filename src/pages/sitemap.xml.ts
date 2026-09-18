@@ -4,6 +4,7 @@ const staticPages = [
     "/",
     "/today-wordle-hint",
     "/today-wordle-answer",
+    "/today-wordle-difficulty", // <-- Added this new page
     "/wordle-solver",
     "/past-answers",
     "/about",

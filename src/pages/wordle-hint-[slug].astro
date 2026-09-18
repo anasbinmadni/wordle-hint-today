@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import AnswerReveal from "../components/AnswerReveal.astro";
-import { getCachedWordle } from "../lib/cache"; // Removed FAQ import as per SEO Audit
+import { getCachedWordle } from "../lib/cache";
 
 export const prerender = false;
 const { slug } = Astro.params;
@@ -17,16 +17,25 @@ const month = parts.at(-2);
 const day = parts.at(-1);
 const apiDate = `${year}-${month}-${day}`;
 
-// 🚨 CRITICAL FIX: STRICT EST TIMEZONE BLOCKER 🚨
-const estTimeString = new Date().toLocaleString("en-US", { timeZone: "America/New_York" });
-const todayEST = new Date(estTimeString);
-todayEST.setHours(0, 0, 0, 0); // Reset to midnight for pure date comparison
+// 🚨 CRITICAL FIX: STRICT EST TIMEZONE BLOCKER (BULLETPROOF STRING COMPARISON) 🚨
+const estDateFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+});
 
-// Parse the requested puzzle date as EST midnight
-const requestedDate = new Date(`${year}-${month}-${day}T00:00:00-05:00`);
+const estParts = estDateFormatter.formatToParts(new Date());
+const currentEstYear = estParts.find(p => p.type === 'year').value;
+const currentEstMonth = estParts.find(p => p.type === 'month').value;
+const currentEstDay = estParts.find(p => p.type === 'day').value;
 
-// If the requested date is strictly greater than today (i.e. Tomorrow or later), BLOCK IT!
-if (requestedDate > todayEST) {
+// Creates a string like "2026-09-18"
+const currentEstDateStr = `${currentEstYear}-${currentEstMonth}-${currentEstDay}`;
+const requestedDateStr = `${year}-${month}-${day}`;
+
+// String comparison automatically checks if requested date is greater (in the future)
+if (requestedDateStr > currentEstDateStr) {
     return Astro.redirect("/404");
 }
 
@@ -143,10 +152,9 @@ function formatLinkDate(date: Date) {
 const prevDateParts = formatLinkDate(previousDate);
 const nextDateParts = formatLinkDate(nextDate);
 
-// ONLY SHOW "NEXT" BUTTON IF NEXT DATE IS NOT IN THE FUTURE
-const nextEST = new Date(nextDate.getTime());
-nextEST.setHours(0,0,0,0);
-const showNextLink = nextEST <= todayEST;
+// ONLY SHOW "NEXT" BUTTON IF NEXT DATE IS NOT IN THE FUTURE (UPDATED LOGIC)
+const nextDateString = `${nextDateParts[0]}-${nextDateParts[1]}-${nextDateParts[2]}`;
+const showNextLink = nextDateString <= currentEstDateStr;
 ---
 
 <Layout
